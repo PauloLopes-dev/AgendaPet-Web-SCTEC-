@@ -1,9 +1,576 @@
-<!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AgendaPet-Web-SCTEC</title>
-  </head>
-  <body></body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AgendaPet Web</title>
+</head>
+
+<body>
+
+  <!-- Link para acessibilidade -->
+  <a href="#conteudo" class="skip-link">
+    Ir para o conteúdo
+  </a>
+
+  <!-- ==================================================
+       HEADER
+       ================================================== -->
+  <header class="cabecalho">
+
+    <div class="marca">
+      <span class="logo" aria-hidden="true">🐾</span>
+      <span>Patinhas & Cia</span>
+    </div>
+
+    <h1>AgendaPet Web</h1>
+
+    <div class="cabecalho-acoes">
+
+      <time id="relogio" datetime="">
+        Agora 14:32
+      </time>
+
+      <button type="button" id="btn-pausar">
+        Pausar lembretes
+      </button>
+
+      <button type="button" id="btn-tema">
+        Tema escuro
+      </button>
+
+    </div>
+
+    <!-- Navegação principal -->
+    <nav aria-label="Navegação principal">
+      <ul>
+        <li>
+          <a href="#novo-agendamento">Novo</a>
+        </li>
+
+        <li>
+          <a href="#agenda">Agenda</a>
+        </li>
+
+        <li>
+          <a href="#fechamento">Fechamento</a>
+        </li>
+      </ul>
+    </nav>
+
+  </header>
+
+
+  <!-- ==================================================
+       MAIN
+       ================================================== -->
+  <main id="conteudo">
+
+    <!-- ==================================================
+         LEMBRETE
+         ================================================== -->
+    <section class="lembrete" role="status" aria-live="polite" aria-label="Lembrete de atendimento">
+
+      <p>
+        Lembrete: Bela (Banho) às 14:40, em 8 min
+      </p>
+
+    </section>
+
+
+    <!-- ==================================================
+         CONTEÚDO PRINCIPAL
+         ================================================== -->
+    <div class="layout-principal">
+
+
+      <!-- ==================================================
+           COLUNA ESQUERDA
+           ================================================== -->
+      <div class="coluna-esquerda">
+
+
+        <!-- ================================================
+             NOVO AGENDAMENTO
+             ================================================ -->
+        <section id="novo-agendamento">
+
+          <h2>Novo agendamento</h2>
+
+          <form>
+
+            <div class="campo">
+              <label for="tutor">
+                Tutor
+              </label>
+
+              <input type="text" id="tutor" name="tutor" required>
+            </div>
+
+
+            <div class="campo">
+              <label for="telefone">
+                Telefone
+              </label>
+
+              <input type="tel" id="telefone" name="telefone">
+            </div>
+
+
+            <div class="campo">
+              <label for="pet">
+                Pet
+              </label>
+
+              <input type="text" id="pet" name="pet" required>
+            </div>
+
+
+            <div class="campo">
+              <label for="especie">
+                Espécie
+              </label>
+
+              <select id="especie" name="especie">
+                <option value="">Selecione</option>
+                <option value="cao">Cão</option>
+                <option value="gato">Gato</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+
+            <div class="campo">
+              <label for="servico">
+                Serviço
+              </label>
+
+              <select id="servico" name="servico">
+                <option value="">Selecione</option>
+                <option value="banho">Banho</option>
+                <option value="tosa">Tosa</option>
+                <option value="banho-tosa">Banho + Tosa</option>
+              </select>
+            </div>
+
+
+            <div class="campo">
+              <label for="data">
+                Data
+              </label>
+
+              <input type="date" id="data" name="data" required>
+            </div>
+
+
+            <div class="campo">
+              <label for="horario">
+                Horário
+              </label>
+
+              <input type="time" id="horario" name="horario" required>
+            </div>
+
+
+            <!-- Aviso de feriado -->
+            <div class="aviso-feriado" role="alert">
+
+              <p>
+                Aviso: este dia é feriado.
+              </p>
+
+            </div>
+
+
+            <!-- Atendimento domiciliar -->
+            <div class="campo-checkbox">
+
+              <input type="checkbox" id="domiciliar" name="domiciliar">
+
+              <label for="domiciliar">
+                Atendimento domiciliar
+              </label>
+
+            </div>
+
+
+            <!-- Endereço -->
+            <fieldset>
+
+              <legend>Endereço</legend>
+
+              <div class="campo">
+                <label for="cep">
+                  CEP
+                </label>
+
+                <input type="text" id="cep" name="cep" inputmode="numeric">
+              </div>
+
+              <div class="campo">
+                <label for="logradouro">
+                  Logradouro
+                </label>
+
+                <input type="text" id="logradouro" name="logradouro">
+              </div>
+
+              <div class="campo">
+                <label for="numero">
+                  Número
+                </label>
+
+                <input type="text" id="numero" name="numero">
+              </div>
+
+              <div class="campo">
+                <label for="bairro">
+                  Bairro
+                </label>
+
+                <input type="text" id="bairro" name="bairro">
+              </div>
+
+            </fieldset>
+
+
+            <!-- Observações -->
+            <div class="campo">
+
+              <label for="observacoes">
+                Observações
+              </label>
+
+              <textarea id="observacoes" name="observacoes" rows="4">
+              </textarea>
+
+            </div>
+
+
+            <button type="submit">
+              Salvar agendamento
+            </button>
+
+          </form>
+
+        </section>
+
+
+        <!-- ================================================
+             SERVIÇOS E PREÇOS
+             ================================================ -->
+        <aside id="servicos" aria-labelledby="titulo-servicos">
+
+          <h2 id="titulo-servicos">
+            Serviços e preços
+          </h2>
+
+          <ul>
+            <li>
+              Banho — R$ 60 — 60 min
+            </li>
+
+            <li>
+              Tosa — R$ 50 — 45 min
+            </li>
+
+            <li>
+              Banho + Tosa — R$ 90 — 90 min
+            </li>
+          </ul>
+
+        </aside>
+
+      </div>
+
+
+      <!-- ==================================================
+           COLUNA DIREITA
+           ================================================== -->
+      <div class="coluna-direita">
+
+
+        <!-- ================================================
+             AGENDA DO DIA
+             ================================================ -->
+        <section id="agenda">
+
+          <h2>Agenda do dia</h2>
+
+          <!-- Filtros -->
+          <form class="filtros">
+
+            <div class="campo">
+
+              <label for="dia">
+                Dia
+              </label>
+
+              <input type="date" id="dia" name="dia">
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="busca">
+                Buscar tutor ou pet
+              </label>
+
+              <input type="search" id="busca" name="busca" placeholder="Digite um nome">
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="status">
+                Status
+              </label>
+
+              <select id="status" name="status">
+
+                <option value="todos">
+                  Todos
+                </option>
+
+                <option value="agendado">
+                  Agendado
+                </option>
+
+                <option value="concluido">
+                  Concluído
+                </option>
+
+                <option value="cancelado">
+                  Cancelado
+                </option>
+
+              </select>
+
+            </div>
+
+          </form>
+
+
+          <!-- Próximo atendimento -->
+          <div class="proximo-atendimento">
+
+            <h3>
+              Próximo atendimento
+            </h3>
+
+            <p>
+              14:40 — Bela — Banho
+            </p>
+
+          </div>
+
+
+          <p>
+            3 agendamentos
+          </p>
+
+
+          <!-- Atendimento -->
+          <article class="agendamento">
+
+            <header>
+
+              <h3>
+                14:00 — Bela · Banho
+              </h3>
+
+              <span class="status">
+                Agendado
+              </span>
+
+            </header>
+
+            <p>
+              Camila (Domiciliar)
+            </p>
+
+            <p>
+              R$ 75,00
+            </p>
+
+            <div class="acoes">
+
+              <button type="button">
+                Concluir
+              </button>
+
+              <button type="button">
+                Cancelar
+              </button>
+
+            </div>
+
+          </article>
+
+        </section>
+
+
+        <!-- ================================================
+             FECHAMENTO DO DIA
+             ================================================ -->
+        <section id="fechamento">
+
+          <h2>Fechamento do dia</h2>
+
+          <div class="resumo">
+
+            <div>
+              <strong>Atendimentos</strong>
+              <span>3</span>
+            </div>
+
+            <div>
+              <strong>Concluídos</strong>
+              <span>2</span>
+            </div>
+
+            <div>
+              <strong>Agendados</strong>
+              <span>1</span>
+            </div>
+
+            <div>
+              <strong>Cancelados</strong>
+              <span>0</span>
+            </div>
+
+          </div>
+
+
+          <div class="financeiro">
+
+            <p>
+              <strong>Faturamento:</strong>
+              R$ 150,00
+            </p>
+
+            <p>
+              <strong>A receber:</strong>
+              R$ 75,00
+            </p>
+
+          </div>
+
+
+          <!-- Tabela por serviço -->
+          <div class="tabela-servicos">
+
+            <h3>
+              Tabela por serviço
+            </h3>
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Serviço</th>
+                  <th>Quantidade</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td>Banho</td>
+                  <td>2</td>
+                  <td>R$ 120,00</td>
+                </tr>
+
+                <tr>
+                  <td>Tosa</td>
+                  <td>1</td>
+                  <td>R$ 50,00</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+          <div class="acoes-fechamento">
+
+            <button type="button">
+              Exemplo
+            </button>
+
+            <button type="button">
+              Exportar
+            </button>
+
+            <button type="button">
+              Limpar dados
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================
+             ATALHOS
+             ================================================ -->
+        <aside id="atalhos" aria-labelledby="titulo-atalhos">
+
+          <h2 id="titulo-atalhos">
+            Atalhos de teclado
+          </h2>
+
+          <dl>
+
+            <dt>Alt + N</dt>
+            <dd>Novo agendamento</dd>
+
+            <dt>Alt + A</dt>
+            <dd>Agenda</dd>
+
+            <dt>Alt + F</dt>
+            <dd>Fechamento</dd>
+
+          </dl>
+
+        </aside>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ==================================================
+       FOOTER
+       ================================================== -->
+  <footer class="rodape">
+
+    <p>
+      AgendaPet Web — projeto de estudo
+    </p>
+
+  </footer>
+
+
+  <!-- ==================================================
+       TOAST
+       ================================================== -->
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+
+    Agendamento AP-0003 salvo…
+
+  </div>
+
+
+</body>
+
 </html>
