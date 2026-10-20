@@ -1,0 +1,22 @@
+{
+    "protocolo": "AP-0002",
+    "tutor": "Carlos Lima",
+    "telefone": "(11) 97766-5544",
+    "pet": "Luna",
+    "especie": "Cão",
+    "servicoId": "banho-tosa",
+    "data": "2026-10-20",
+    "hora": "09:00", // data "AAAA-MM-DD" e hora "HH:MM" (texto)
+    "status": "Concluído", // "Agendado" | "Concluído" | "Cancelado"
+    "observacoes": "Tosa na máquina.",
+    "domiciliar": true, // false → "endereco": null
+    "endereco": {
+        "cep": "01310-200",
+        "logradouro": "Avenida Paulista",
+        "numero": "1578",
+        "complemento": "apto 42",
+        "bairro": "Bela Vista",
+        "cidade": "São Paulo",
+        "uf": "SP"
+    }
+}

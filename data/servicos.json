@@ -1,0 +1,18 @@
+[
+    {
+        "id": "banho",
+        "nome": "Banho",
+        "descricao": "Banho com shampoo neutro, secagem e perfume.",
+        "preco": 60,
+        "duracaoMin": 60,
+        "domiciliar": true
+    },
+    {
+        "id": "adestramento",
+        "nome": "Adestramento (sessão)",
+        "descricao": "...",
+        "preco": 110,
+        "duracaoMin": 60,
+        "domiciliar": false
+    }
+]
