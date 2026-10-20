@@ -20,43 +20,43 @@ npm install
 npm start
 ```
 
-| Comando | O que faz |
-|---|---|
-| `npm start` | [descreva] |
+| Comando              | O que faz  |
+| -------------------- | ---------- |
+| `npm start`          | [descreva] |
 | `npm run fechamento` | [descreva] |
-| `npm run validar` | [descreva] |
+| `npm run validar`    | [descreva] |
 
 ## 3. Decisões de negócio
 
-| Decisão | Valor | Onde está no código |
-|---|---|---|
-| Horário de funcionamento | [ex.: 08:00 às 18:00] | [arquivo/função] |
-| Conflito de horário | [regra] | [arquivo/função] |
-| Taxa domiciliar | [valor e regra] | [arquivo/função] |
-| Faturamento | [o que entra e o que não entra] | [arquivo/função] |
-| Validade do cache de feriados | [ex.: 30 dias] | [arquivo/função] |
-| Quando as APIs falham | [o que acontece] | [arquivo/função] |
+| Decisão                       | Valor                           | Onde está no código |
+| ----------------------------- | ------------------------------- | ------------------- |
+| Horário de funcionamento      | [ex.: 08:00 às 18:00]           | [arquivo/função]    |
+| Conflito de horário           | [regra]                         | [arquivo/função]    |
+| Taxa domiciliar               | [valor e regra]                 | [arquivo/função]    |
+| Faturamento                   | [o que entra e o que não entra] | [arquivo/função]    |
+| Validade do cache de feriados | [ex.: 30 dias]                  | [arquivo/função]    |
+| Quando as APIs falham         | [o que acontece]                | [arquivo/função]    |
 
 ## 4. Conceitos do Módulo 01: onde foram aplicados
 
-| Conceito | Arquivo e função |
-|---|---|
-| HTML semântico, acessibilidade e SEO | [ ] |
-| Formulários + JavaScript | [ ] |
-| CSS, Flexbox, variáveis e responsividade | [ ] |
-| DOM e seletores | [ ] |
-| Eventos de mouse e teclado | [ ] |
-| `fetch`, Promises e `async/await` | [ ] |
-| `localStorage` | [ ] |
-| `setTimeout` / `setInterval` | [ ] |
-| Classes, construtor e `this` | [ ] |
-| Herança (`extends`/`super`) | [ ] |
-| Closure | [ ] |
-| Callback | [ ] |
-| Métodos de array (mínimo 4) e laços | [ ] |
-| `const`, `let` e `var` (e por que evitar `var`) | [explique] |
-| Módulos ESM | [ ] |
-| Node.js, npm e CommonJS | [ ] |
+| Conceito                                        | Arquivo e função |
+| ----------------------------------------------- | ---------------- |
+| HTML semântico, acessibilidade e SEO            | [ ]              |
+| Formulários + JavaScript                        | [ ]              |
+| CSS, Flexbox, variáveis e responsividade        | [ ]              |
+| DOM e seletores                                 | [ ]              |
+| Eventos de mouse e teclado                      | [ ]              |
+| `fetch`, Promises e `async/await`               | [ ]              |
+| `localStorage`                                  | [ ]              |
+| `setTimeout` / `setInterval`                    | [ ]              |
+| Classes, construtor e `this`                    | [ ]              |
+| Herança (`extends`/`super`)                     | [ ]              |
+| Closure                                         | [ ]              |
+| Callback                                        | [ ]              |
+| Métodos de array (mínimo 4) e laços             | [ ]              |
+| `const`, `let` e `var` (e por que evitar `var`) | [explique]       |
+| Módulos ESM                                     | [ ]              |
+| Node.js, npm e CommonJS                         | [ ]              |
 
 ## 5. Arquitetura cliente-servidor
 
@@ -68,13 +68,13 @@ npm start
 
 ## 7. CommonJS vs ESM
 
-| | CommonJS | ESM |
-|---|---|---|
-| Sintaxe | [ ] | [ ] |
-| Extensão | [ ] | [ ] |
-| `"type"` no `package.json` | [ ] | [ ] |
-| Carregamento | [ ] | [ ] |
-| Funciona no navegador? | [ ] | [ ] |
+|                            | CommonJS | ESM |
+| -------------------------- | -------- | --- |
+| Sintaxe                    | [ ]      | [ ] |
+| Extensão                   | [ ]      | [ ] |
+| `"type"` no `package.json` | [ ]      | [ ] |
+| Carregamento               | [ ]      | [ ] |
+| Funciona no navegador?     | [ ]      | [ ] |
 
 [Por que o projeto usa ESM?]
 
@@ -88,13 +88,13 @@ npm start
 
 ## 10. Sprint: planejado × entregue
 
-| | |
-|---|---|
-| Tickets planejados | [ ] |
-| Pontos planejados | [ ] |
-| Pontos entregues | [ ] |
-| O que ficou de fora e por quê | [ ] |
-| Branches / Pull Requests | [quantidade] |
+|                               |              |
+| ----------------------------- | ------------ |
+| Tickets planejados            | [ ]          |
+| Pontos planejados             | [ ]          |
+| Pontos entregues              | [ ]          |
+| O que ficou de fora e por quê | [ ]          |
+| Branches / Pull Requests      | [quantidade] |
 
 Detalhes em [planejamento/sprint-planning.md](planejamento/sprint-planning.md).
 
@@ -117,4 +117,3 @@ Detalhes em [planejamento/sprint-planning.md](planejamento/sprint-planning.md).
 ## 13. Uso de IA
 
 [Se usou, diga onde e o que você validou. Se não usou, escreva "Não utilizei".]
-
