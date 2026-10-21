@@ -4,573 +4,389 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>AgendaPet Web</title>
-  <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+  <title>AgendaPet Web — Patinhas & Cia</title>
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
 
-  <!-- Link para acessibilidade -->
-  <a href="#conteudo" class="skip-link">
-    Ir para o conteúdo
-  </a>
-
-  <!-- ==================================================
-       HEADER
-       ================================================== -->
-  <header class="cabecalho">
-
-    <div class="marca">
-      <span class="logo" aria-hidden="true">🐾</span>
-      <span>Patinhas & Cia</span>
+  <header class="topo">
+    <div class="topo__marca">
+      <div aria-hidden="true" style="font-size:2.2rem; line-height:1;">🐾</div>
+      <div>
+        <div class="topo__loja">Patinhas &amp; Cia</div>
+        <h1 class="topo__titulo">AgendaPet Web</h1>
+      </div>
     </div>
 
-    <h1>AgendaPet Web</h1>
+    <div class="topo__ferramentas">
+      <div class="relogio">
+        <span class="relogio__rotulo">Agora</span>
+        <span class="relogio__hora" data-relogio>21:11</span>
+      </div>
 
-    <div class="cabecalho-acoes">
-
-      <time id="relogio" datetime="">
-        Agora 14:32
-      </time>
-
-      <button type="button" id="btn-pausar">
+      <button class="botao botao--secundario botao--pequeno" type="button">
         Pausar lembretes
       </button>
 
-      <button type="button" id="btn-tema">
+      <button class="botao botao--secundario botao--pequeno" type="button" data-tema>
         Tema escuro
       </button>
 
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav__link" href="#novo-agendamento">Novo agendamento</a>
+        <a class="nav__link" href="#agenda-do-dia">Agenda do dia</a>
+        <a class="nav__link" href="#fechamento-do-dia">Fechamento do dia</a>
+      </nav>
     </div>
-
-    <!-- Navegação principal -->
-    <nav aria-label="Navegação principal">
-      <ul>
-        <li>
-          <a href="#novo-agendamento">Novo</a>
-        </li>
-
-        <li>
-          <a href="#agenda">Agenda</a>
-        </li>
-
-        <li>
-          <a href="#fechamento">Fechamento</a>
-        </li>
-      </ul>
-    </nav>
-
   </header>
 
+  <main class="principal">
 
-  <!-- ==================================================
-       MAIN
-       ================================================== -->
-  <main id="conteudo">
+    <section class="painel">
 
-    <!-- ==================================================
-         LEMBRETE
-         ================================================== -->
-    <section class="lembrete" role="status" aria-live="polite" aria-label="Lembrete de atendimento">
+      <!-- COLUNA ESQUERDA -->
+      <div class="coluna coluna--form">
 
-      <p>
-        Lembrete: Bela (Banho) às 14:40, em 8 min
-      </p>
+        <section class="cartao" id="novo-agendamento">
+          <h2 class="cartao__titulo">Novo agendamento</h2>
 
-    </section>
-
-
-    <!-- ==================================================
-         CONTEÚDO PRINCIPAL
-         ================================================== -->
-    <div class="layout-principal">
-
-
-      <!-- ==================================================
-           COLUNA ESQUERDA
-           ================================================== -->
-      <div class="coluna-esquerda">
-
-
-        <!-- ================================================
-             NOVO AGENDAMENTO
-             ================================================ -->
-        <section id="novo-agendamento">
-
-          <h2>Novo agendamento</h2>
-
-          <form>
+          <form class="form">
 
             <div class="campo">
-              <label for="tutor">
-                Tutor
-              </label>
-
-              <input type="text" id="tutor" name="tutor" required>
+              <label class="campo__rotulo" for="tutor">Nome do tutor</label>
+              <input class="campo__entrada" id="tutor" type="text">
             </div>
 
-
             <div class="campo">
-              <label for="telefone">
-                Telefone
-              </label>
-
-              <input type="tel" id="telefone" name="telefone">
+              <label class="campo__rotulo" for="telefone">Telefone com DDD</label>
+              <input class="campo__entrada" id="telefone" type="tel" placeholder="(11) 98888-7777">
             </div>
 
+            <div class="linha">
+              <div class="campo campo--grande">
+                <label class="campo__rotulo" for="pet">Nome do pet</label>
+                <input class="campo__entrada" id="pet" type="text">
+              </div>
 
-            <div class="campo">
-              <label for="pet">
-                Pet
-              </label>
-
-              <input type="text" id="pet" name="pet" required>
+              <div class="campo">
+                <label class="campo__rotulo" for="especie">Espécie</label>
+                <select class="campo__entrada" id="especie">
+                  <option>Selecione...</option>
+                  <option>Cão</option>
+                  <option>Gato</option>
+                  <option>Outro</option>
+                </select>
+              </div>
             </div>
 
-
             <div class="campo">
-              <label for="especie">
-                Espécie
-              </label>
-
-              <select id="especie" name="especie">
-                <option value="">Selecione</option>
-                <option value="cao">Cão</option>
-                <option value="gato">Gato</option>
-                <option value="outro">Outro</option>
+              <label class="campo__rotulo" for="servico">Serviço</label>
+              <select class="campo__entrada" id="servico">
+                <option>Selecione...</option>
+                <option>Banho</option>
+                <option>Tosa higiênica</option>
+                <option>Banho e tosa completa</option>
+                <option>Consulta veterinária</option>
+                <option>Vacinação</option>
+                <option>Adestramento (sessão)</option>
+                <option>Hospedagem (check-in)</option>
               </select>
             </div>
 
-
-            <div class="campo">
-              <label for="servico">
-                Serviço
-              </label>
-
-              <select id="servico" name="servico">
-                <option value="">Selecione</option>
-                <option value="banho">Banho</option>
-                <option value="tosa">Tosa</option>
-                <option value="banho-tosa">Banho + Tosa</option>
-              </select>
-            </div>
-
-
-            <div class="campo">
-              <label for="data">
-                Data
-              </label>
-
-              <input type="date" id="data" name="data" required>
-            </div>
-
-
-            <div class="campo">
-              <label for="horario">
-                Horário
-              </label>
-
-              <input type="time" id="horario" name="horario" required>
-            </div>
-
-
-            <!-- Aviso de feriado -->
-            <div class="aviso-feriado" role="alert">
-
-              <p>
-                Aviso: este dia é feriado.
-              </p>
-
-            </div>
-
-
-            <!-- Atendimento domiciliar -->
-            <div class="campo-checkbox">
-
-              <input type="checkbox" id="domiciliar" name="domiciliar">
-
-              <label for="domiciliar">
-                Atendimento domiciliar
-              </label>
-
-            </div>
-
-
-            <!-- Endereço -->
-            <fieldset>
-
-              <legend>Endereço</legend>
-
+            <div class="linha">
               <div class="campo">
-                <label for="cep">
-                  CEP
-                </label>
-
-                <input type="text" id="cep" name="cep" inputmode="numeric">
+                <label class="campo__rotulo" for="data">Data</label>
+                <input class="campo__entrada" id="data" type="date">
               </div>
 
               <div class="campo">
-                <label for="logradouro">
-                  Logradouro
-                </label>
-
-                <input type="text" id="logradouro" name="logradouro">
+                <label class="campo__rotulo" for="horario">Horário</label>
+                <input class="campo__entrada" id="horario" type="time">
               </div>
-
-              <div class="campo">
-                <label for="numero">
-                  Número
-                </label>
-
-                <input type="text" id="numero" name="numero">
-              </div>
-
-              <div class="campo">
-                <label for="bairro">
-                  Bairro
-                </label>
-
-                <input type="text" id="bairro" name="bairro">
-              </div>
-
-            </fieldset>
-
-
-            <!-- Observações -->
-            <div class="campo">
-
-              <label for="observacoes">
-                Observações
-              </label>
-
-              <textarea id="observacoes" name="observacoes" rows="4">
-              </textarea>
-
             </div>
 
+            <label class="campo campo--check">
+              <input type="checkbox">
+              <span>Atendimento domiciliar</span>
+            </label>
 
-            <button type="submit">
+            <p class="campo__dica">
+              Escolha um serviço para ver se ele pode ser feito na casa do tutor.
+            </p>
+
+            <div class="campo">
+              <label class="campo__rotulo" for="observacoes">
+                Observações (opcional)
+              </label>
+              <textarea class="campo__entrada" id="observacoes" rows="3"></textarea>
+            </div>
+
+            <button class="botao botao--principal botao--cheio" type="submit">
               Salvar agendamento
             </button>
 
           </form>
-
         </section>
 
+        <section class="cartao">
+          <h2 class="cartao__titulo">Serviços e preços</h2>
 
-        <!-- ================================================
-             SERVIÇOS E PREÇOS
-             ================================================ -->
-        <aside id="servicos" aria-labelledby="titulo-servicos">
+          <div class="servicos">
 
-          <h2 id="titulo-servicos">
-            Serviços e preços
-          </h2>
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Banho</strong>
+                <span class="servico__preco">R$ 60,00</span>
+              </div>
+              <p class="servico__descricao">
+                Banho com shampoo neutro, secagem e perfume.
+              </p>
+              <p class="servico__meta">60 min · faz atendimento domiciliar</p>
+            </article>
 
-          <ul>
-            <li>
-              Banho — R$ 60 — 60 min
-            </li>
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Tosa higiênica</strong>
+                <span class="servico__preco">R$ 80,00</span>
+              </div>
+              <p class="servico__descricao">
+                Tosa nas áreas de higiene, patas e rosto.
+              </p>
+              <p class="servico__meta">60 min · faz atendimento domiciliar</p>
+            </article>
 
-            <li>
-              Tosa — R$ 50 — 45 min
-            </li>
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Banho e tosa completa</strong>
+                <span class="servico__preco">R$ 120,00</span>
+              </div>
+              <p class="servico__descricao">
+                Banho, tosa completa e hidratação dos pelos.
+              </p>
+              <p class="servico__meta">120 min · faz atendimento domiciliar</p>
+            </article>
 
-            <li>
-              Banho + Tosa — R$ 90 — 90 min
-            </li>
-          </ul>
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Consulta veterinária</strong>
+                <span class="servico__preco">R$ 150,00</span>
+              </div>
+              <p class="servico__descricao">Avaliação clínica geral com veterinário(a).</p>
+              <p class="servico__meta">30 min · faz atendimento domiciliar</p>
+            </article>
 
-        </aside>
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Vacinação</strong>
+                <span class="servico__preco">R$ 90,00</span>
+              </div>
+              <p class="servico__descricao">Aplicação de vacina com carteirinha atualizada.</p>
+              <p class="servico__meta">30 min · faz atendimento domiciliar</p>
+            </article>
+
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Adestramento (sessão)</strong>
+                <span class="servico__preco">R$ 110,00</span>
+              </div>
+              <p class="servico__descricao">Sessão individual de adestramento básico.</p>
+              <p class="servico__meta">60 min · somente na loja</p>
+            </article>
+
+            <article class="servico">
+              <div class="servico__topo">
+                <strong>Hospedagem (check-in)</strong>
+                <span class="servico__preco">R$ 80,00</span>
+              </div>
+              <p class="servico__descricao">Recepção do pet para a diária de hospedagem.</p>
+              <p class="servico__meta">30 min · somente na loja</p>
+            </article>
+
+          </div>
+        </section>
 
       </div>
 
+      <!-- COLUNA DIREITA -->
+      <div class="coluna coluna--agenda">
 
-      <!-- ==================================================
-           COLUNA DIREITA
-           ================================================== -->
-      <div class="coluna-direita">
+        <section class="cartao" id="agenda-do-dia">
+          <h2 class="cartao__titulo">Agenda do dia</h2>
 
-
-        <!-- ================================================
-             AGENDA DO DIA
-             ================================================ -->
-        <section id="agenda">
-
-          <h2>Agenda do dia</h2>
-
-          <!-- Filtros -->
-          <form class="filtros">
-
+          <div class="filtros">
             <div class="campo">
-
-              <label for="dia">
-                Dia
-              </label>
-
-              <input type="date" id="dia" name="dia">
-
+              <label class="campo__rotulo" for="dia">Dia</label>
+              <input class="campo__entrada" id="dia" type="date" value="2026-10-20">
             </div>
 
-
-            <div class="campo">
-
-              <label for="busca">
-                Buscar tutor ou pet
-              </label>
-
-              <input type="search" id="busca" name="busca" placeholder="Digite um nome">
-
+            <div class="campo campo--busca">
+              <label class="campo__rotulo" for="busca">Buscar tutor ou pet</label>
+              <input class="campo__entrada" id="busca" type="search" placeholder="Digite para filtrar...">
             </div>
 
-
             <div class="campo">
-
-              <label for="status">
-                Status
-              </label>
-
-              <select id="status" name="status">
-
-                <option value="todos">
-                  Todos
-                </option>
-
-                <option value="agendado">
-                  Agendado
-                </option>
-
-                <option value="concluido">
-                  Concluído
-                </option>
-
-                <option value="cancelado">
-                  Cancelado
-                </option>
-
+              <label class="campo__rotulo" for="status">Status</label>
+              <select class="campo__entrada" id="status">
+                <option>Todos</option>
+                <option>Agendado</option>
+                <option>Concluído</option>
+                <option>Cancelado</option>
               </select>
-
             </div>
-
-          </form>
-
-
-          <!-- Próximo atendimento -->
-          <div class="proximo-atendimento">
-
-            <h3>
-              Próximo atendimento
-            </h3>
-
-            <p>
-              14:40 — Bela — Banho
-            </p>
-
           </div>
 
+          <div class="proximo">
+            Próximo atendimento de hoje: nenhum pendente
+          </div>
 
-          <p>
-            3 agendamentos
-          </p>
+          <p class="contador">0 agendamentos</p>
 
-
-          <!-- Atendimento -->
-          <article class="agendamento">
-
-            <header>
-
-              <h3>
-                14:00 — Bela · Banho
-              </h3>
-
-              <span class="status">
-                Agendado
-              </span>
-
-            </header>
-
-            <p>
-              Camila (Domiciliar)
-            </p>
-
-            <p>
-              R$ 75,00
-            </p>
-
-            <div class="acoes">
-
-              <button type="button">
-                Concluir
-              </button>
-
-              <button type="button">
-                Cancelar
-              </button>
-
-            </div>
-
-          </article>
-
+          <div class="vazio">
+            Nenhum agendamento para este dia. Use o formulário para criar o primeiro.
+          </div>
         </section>
 
-
-        <!-- ================================================
-             FECHAMENTO DO DIA
-             ================================================ -->
-        <section id="fechamento">
-
-          <h2>Fechamento do dia</h2>
+        <section class="cartao" id="fechamento-do-dia">
+          <h2 class="cartao__titulo">Fechamento do dia</h2>
+          <p class="cartao__subtitulo">20/10/2026 · dia em andamento</p>
 
           <div class="resumo">
-
-            <div>
-              <strong>Atendimentos</strong>
-              <span>3</span>
+            <div class="resumo__item">
+              <div class="resumo__rotulo">Atendimentos</div>
+              <div class="resumo__valor">0</div>
             </div>
-
-            <div>
-              <strong>Concluídos</strong>
-              <span>2</span>
+            <div class="resumo__item">
+              <div class="resumo__rotulo">Concluídos</div>
+              <div class="resumo__valor">0</div>
             </div>
-
-            <div>
-              <strong>Agendados</strong>
-              <span>1</span>
+            <div class="resumo__item">
+              <div class="resumo__rotulo">Agendados</div>
+              <div class="resumo__valor">0</div>
             </div>
-
-            <div>
-              <strong>Cancelados</strong>
-              <span>0</span>
+            <div class="resumo__item">
+              <div class="resumo__rotulo">Cancelados</div>
+              <div class="resumo__valor">0</div>
             </div>
-
+            <div class="resumo__item">
+              <div class="resumo__rotulo">Faturamento</div>
+              <div class="resumo__valor">R$ 0,00</div>
+            </div>
+            <div class="resumo__item">
+              <div class="resumo__rotulo">A receber</div>
+              <div class="resumo__valor">R$ 0,00</div>
+            </div>
           </div>
 
+          <h3 class="subtitulo">Por serviço</h3>
 
-          <div class="financeiro">
-
-            <p>
-              <strong>Faturamento:</strong>
-              R$ 150,00
-            </p>
-
-            <p>
-              <strong>A receber:</strong>
-              R$ 75,00
-            </p>
-
-          </div>
-
-
-          <!-- Tabela por serviço -->
-          <div class="tabela-servicos">
-
-            <h3>
-              Tabela por serviço
-            </h3>
-
-            <table>
-
+          <div class="tabela-rolagem">
+            <table class="tabela">
               <thead>
                 <tr>
                   <th>Serviço</th>
-                  <th>Quantidade</th>
-                  <th>Valor</th>
+                  <th>Qtd.</th>
+                  <th>Faturado</th>
                 </tr>
               </thead>
-
               <tbody>
-
                 <tr>
-                  <td>Banho</td>
-                  <td>2</td>
-                  <td>R$ 120,00</td>
+                  <td colspan="3">Nenhum atendimento ativo neste dia.</td>
                 </tr>
-
-                <tr>
-                  <td>Tosa</td>
-                  <td>1</td>
-                  <td>R$ 50,00</td>
-                </tr>
-
               </tbody>
-
             </table>
-
           </div>
 
+          <h3 class="subtitulo">Dados</h3>
 
-          <div class="acoes-fechamento">
-
-            <button type="button">
-              Exemplo
+          <div class="acoes">
+            <button class="botao botao--secundario botao--pequeno" type="button">
+              Carregar dados de exemplo
             </button>
-
-            <button type="button">
-              Exportar
+            <button class="botao botao--secundario botao--pequeno" type="button">
+              Exportar agenda (JSON)
             </button>
-
-            <button type="button">
-              Limpar dados
+            <button class="botao botao--perigo botao--pequeno" type="button">
+              Limpar meus dados
             </button>
-
           </div>
-
         </section>
 
+        <section class="cartao cartao--atalhos">
+          <h2 class="cartao__titulo">Atalhos de teclado</h2>
 
-        <!-- ================================================
-             ATALHOS
-             ================================================ -->
-        <aside id="atalhos" aria-labelledby="titulo-atalhos">
-
-          <h2 id="titulo-atalhos">
-            Atalhos de teclado
-          </h2>
-
-          <dl>
-
-            <dt>Alt + N</dt>
-            <dd>Novo agendamento</dd>
-
-            <dt>Alt + A</dt>
-            <dd>Agenda</dd>
-
-            <dt>Alt + F</dt>
-            <dd>Fechamento</dd>
-
-          </dl>
-
-        </aside>
+          <div class="atalhos">
+            <div><kbd>N</kbd> vai para o formulário de novo agendamento</div>
+            <div><kbd>/</kbd> foca a busca da agenda</div>
+            <div><kbd>Esc</kbd> limpa a busca</div>
+          </div>
+        </section>
 
       </div>
 
-    </div>
+    </section>
+
+    <footer class="rodape">
+      AgendaPet Web — projeto de estudo (Módulo 01, Semanas 13 e 14).
+      Patinhas &amp; Cia é uma empresa fictícia.
+    </footer>
 
   </main>
 
+  <script>
+    // Relógio do cabeçalho
+    function atualizarRelogio() {
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      document.querySelector("[data-relogio]").textContent = hora;
+    }
 
-  <!-- ==================================================
-       FOOTER
-       ================================================== -->
-  <footer class="rodape">
+    atualizarRelogio();
+    setInterval(atualizarRelogio, 1000);
 
-    <p>
-      AgendaPet Web — projeto de estudo
-    </p>
+    // Alternância do tema escuro
+    const botaoTema = document.querySelector("[data-tema]");
 
-  </footer>
+    botaoTema.addEventListener("click", () => {
+      const escuro = document.documentElement.getAttribute("data-tema") === "escuro";
 
+      if (escuro) {
+        document.documentElement.removeAttribute("data-tema");
+        botaoTema.textContent = "Tema escuro";
+      } else {
+        document.documentElement.setAttribute("data-tema", "escuro");
+        botaoTema.textContent = "Tema claro";
+      }
+    });
 
-  <!-- ==================================================
-       TOAST
-       ================================================== -->
-  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+    // Atalhos de teclado
+    document.addEventListener("keydown", (evento) => {
+      const elemento = document.activeElement;
+      const digitando =
+        elemento &&
+        ["INPUT", "TEXTAREA", "SELECT"].includes(elemento.tagName);
 
-    Agendamento AP-0003 salvo…
+      if (digitando) return;
 
-  </div>
+      if (evento.key.toLowerCase() === "n") {
+        document.querySelector("#tutor").focus();
+      }
 
+      if (evento.key === "/") {
+        evento.preventDefault();
+        document.querySelector("#busca").focus();
+      }
+
+      if (evento.key === "Escape") {
+        const busca = document.querySelector("#busca");
+        busca.value = "";
+        busca.blur();
+      }
+    });
+  </script>
 
 </body>
 
