@@ -1,0 +1,22 @@
+{
+  "name": "agendapet-web-sctec-",
+  "version": "1.0.0",
+  "description": "<<<<<<< Updated upstream\r # AgendaPet-Web-SCTEC-",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-.git"
+  },
+  "keywords": [],
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-/issues"
+  },
+  "homepage": "https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
