@@ -1,393 +1,391 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgendaPet Web — Patinhas & Cia</title>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg" />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgendaPet Web — Patinhas & Cia</title>
-  <link rel="stylesheet" href="./css/style.css">
-</head>
-
-<body>
-
-  <header class="topo">
-    <div class="topo__marca">
-      <div aria-hidden="true" style="font-size:2.2rem; line-height:1;">🐾</div>
-      <div>
-        <div class="topo__loja">Patinhas &amp; Cia</div>
-        <h1 class="topo__titulo">AgendaPet Web</h1>
-      </div>
-    </div>
-
-    <div class="topo__ferramentas">
-      <div class="relogio">
-        <span class="relogio__rotulo">Agora</span>
-        <span class="relogio__hora" data-relogio>21:11</span>
+  <body>
+    <a class="pular-conteudo" href="#conteudo">
+      Pular para o conteúdo principal
+    </a>
+    <header class="topo">
+      <div class="topo__marca">
+        <div aria-hidden="true" style="font-size: 2.2rem; line-height: 1">
+          <img src="./img/logo.svg" alt="Logotipo Patinhas" />
+        </div>
+        <div>
+          <div class="topo__loja">Patinhas &amp; Cia</div>
+          <h1 class="topo__titulo">AgendaPet Web</h1>
+        </div>
       </div>
 
-      <button class="botao botao--secundario botao--pequeno" type="button">
-        Pausar lembretes
-      </button>
+      <div class="topo__ferramentas">
+        <div class="relogio">
+          <span class="relogio__rotulo">Agora</span>
+          <span class="relogio__hora" data-relogio>21:11</span>
+        </div>
 
-      <button class="botao botao--secundario botao--pequeno" type="button" data-tema>
-        Tema escuro
-      </button>
+        <button class="botao botao--secundario botao--pequeno" type="button">
+          Pausar lembretes
+        </button>
 
-      <nav class="nav" aria-label="Navegação principal">
-        <a class="nav__link" href="#novo-agendamento">Novo agendamento</a>
-        <a class="nav__link" href="#agenda-do-dia">Agenda do dia</a>
-        <a class="nav__link" href="#fechamento-do-dia">Fechamento do dia</a>
-      </nav>
-    </div>
-  </header>
+        <button
+          class="botao botao--secundario botao--pequeno"
+          type="button"
+          data-tema
+        >
+          Tema escuro
+        </button>
 
-  <main class="principal">
+        <nav class="nav" aria-label="Navegação principal">
+          <a class="nav__link" href="#novo-agendamento">Novo agendamento</a>
+          <a class="nav__link" href="#agenda-do-dia">Agenda do dia</a>
+          <a class="nav__link" href="#fechamento-do-dia">Fechamento do dia</a>
+        </nav>
+      </div>
+    </header>
 
-    <section class="painel">
+    <main class="principal" id="conteudo">
+      <section class="painel">
+        <!-- COLUNA ESQUERDA -->
+        <div class="coluna coluna--form">
+          <section class="cartao" id="novo-agendamento">
+            <h2 class="cartao__titulo">Novo agendamento</h2>
 
-      <!-- COLUNA ESQUERDA -->
-      <div class="coluna coluna--form">
+            <form class="form" novalidade>
 
-        <section class="cartao" id="novo-agendamento">
-          <h2 class="cartao__titulo">Novo agendamento</h2>
-
-          <form class="form">
-
-            <div class="campo">
-              <label class="campo__rotulo" for="tutor">Nome do tutor</label>
-              <input class="campo__entrada" id="tutor" type="text">
-            </div>
-
-            <div class="campo">
-              <label class="campo__rotulo" for="telefone">Telefone com DDD</label>
-              <input class="campo__entrada" id="telefone" type="tel" placeholder="(11) 98888-7777">
-            </div>
-
-            <div class="linha">
-              <div class="campo campo--grande">
-                <label class="campo__rotulo" for="pet">Nome do pet</label>
-                <input class="campo__entrada" id="pet" type="text">
+              <div class="campo">
+                <label class="campo__rotulo" for="tutor">Nome do tutor</label>
+                <input
+                  class="campo__entrada"
+                  id="tutor"
+                  name="tutor"
+                  type="text"
+                  autocomplete="name"
+                  required
+                />
               </div>
 
               <div class="campo">
-                <label class="campo__rotulo" for="especie">Espécie</label>
-                <select class="campo__entrada" id="especie">
-                  <option>Selecione...</option>
-                  <option>Cão</option>
-                  <option>Gato</option>
-                  <option>Outro</option>
+                <label class="campo__rotulo" for="telefone">
+                  Telefone com DDD
+                </label>
+                <input
+                  class="campo__entrada"
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  placeholder="(11) 98888-7777"
+                  autocomplete="tel"
+                  required
+                />
+              </div>
+
+              <div class="campo">
+                <label class="campo__rotulo" for="pet">Nome do pet</label>
+                <input
+                  class="campo__entrada"
+                  id="pet"
+                  name="pet"
+                  type="text"
+                  required
+                />
+              </div>
+
+                <div class="campo">
+                  <label class="campo__rotulo" for="especie">Espécie</label>
+                  <select class="campo__entrada" id="especie" name="especie" required>
+                    <option value="" disabled selected>Selecione uma espécie...</option>
+                    <option value="cao">Cão</option>
+                    <option value="gato">Gato</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="campo">
+                <label class="campo__rotulo" for="servico">Serviço</label>
+
+                <select
+                      class="campo__entrada"
+                      id="servico"
+                      name="servico"
+                      required
+                    >
+                  <option value="" disabled selected>
+                    Carregando serviços...
+                  </option>
+                </select>
+              </div>
+
+
+              <div class="linha">
+                <div class="campo">
+                  <label class="campo__rotulo" for="data">Data</label>
+                  <input
+                    class="campo__entrada"
+                    id="data"
+                    name="data"
+                    type="date"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label class="campo__rotulo" for="horario">Horário</label>
+                  <input
+                    class="campo__entrada"
+                    id="horario"
+                    name="horario"
+                    type="time"
+                    required
+                  />
+                </div>
+              </div>
+
+              <label class="campo campo--check">
+                <input type="checkbox" />
+                <span>Atendimento domiciliar</span>
+              </label>
+
+              <p class="campo__dica">
+                Escolha um serviço para ver se ele pode ser feito na casa do
+                tutor.
+              </p>
+
+              <div class="campo">
+                <label class="campo__rotulo" for="observacoes">
+                  Observações (opcional)
+                </label>
+                <textarea
+                  class="campo__entrada"
+                  id="observacoes"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div
+                class="form__mensagem"
+                id="mensagem-formulario"
+                role="alert"
+                aria-live="assertive"
+              ></div>
+
+              <button class="botao botao--principal botao--cheio" type="submit">
+                Salvar agendamento
+              </button>
+            </form>
+          </section>
+
+          <section class="cartao">
+            <h2 class="cartao__titulo">Serviços e preços</h2>
+
+            <div class="servicos"
+                id="lista-servicos"
+                aria-live="polite"
+                aria-busy="true">
+              <p class="servicos__mensagem">Carregando serviços...</p>
+            </div>
+
+
+        <!-- COLUNA DIREITA -->
+        <div class="coluna coluna--agenda">
+          <section class="cartao" id="agenda-do-dia">
+            <h2 class="cartao__titulo">Agenda do dia</h2>
+
+            <div class="filtros">
+              <div class="campo">
+                <label class="campo__rotulo" for="dia">Dia</label>
+                <input
+                  class="campo__entrada"
+                  id="dia"
+                  type="date"
+                  value="2026-10-20"
+                />
+              </div>
+
+              <div class="campo campo--busca">
+                <label class="campo__rotulo" for="busca"
+                  >Buscar tutor ou pet</label
+                >
+                <input
+                  class="campo__entrada"
+                  id="busca"
+                  type="search"
+                  placeholder="Digite para filtrar..."
+                />
+              </div>
+
+              <div class="campo">
+                <label class="campo__rotulo" for="status">Status</label>
+                <select class="campo__entrada" id="status">
+                  <option>Todos</option>
+                  <option>Agendado</option>
+                  <option>Concluído</option>
+                  <option>Cancelado</option>
                 </select>
               </div>
             </div>
 
-            <div class="campo">
-              <label class="campo__rotulo" for="servico">Serviço</label>
-              <select class="campo__entrada" id="servico">
-                <option>Selecione...</option>
-                <option>Banho</option>
-                <option>Tosa higiênica</option>
-                <option>Banho e tosa completa</option>
-                <option>Consulta veterinária</option>
-                <option>Vacinação</option>
-                <option>Adestramento (sessão)</option>
-                <option>Hospedagem (check-in)</option>
-              </select>
+            <div class="proximo">
+              Próximo atendimento de hoje: nenhum pendente
             </div>
 
-            <div class="linha">
-              <div class="campo">
-                <label class="campo__rotulo" for="data">Data</label>
-                <input class="campo__entrada" id="data" type="date">
+            <p class="contador">0 agendamentos</p>
+
+            <div class="vazio">
+              Nenhum agendamento para este dia. Use o formulário para criar o
+              primeiro.
+            </div>
+          </section>
+
+          <section class="cartao" id="fechamento-do-dia">
+            <h2 class="cartao__titulo">Fechamento do dia</h2>
+            <p class="cartao__subtitulo">20/10/2026 · dia em andamento</p>
+
+            <div class="resumo">
+              <div class="resumo__item">
+                <div class="resumo__rotulo">Atendimentos</div>
+                <div class="resumo__valor">0</div>
               </div>
-
-              <div class="campo">
-                <label class="campo__rotulo" for="horario">Horário</label>
-                <input class="campo__entrada" id="horario" type="time">
+              <div class="resumo__item">
+                <div class="resumo__rotulo">Concluídos</div>
+                <div class="resumo__valor">0</div>
+              </div>
+              <div class="resumo__item">
+                <div class="resumo__rotulo">Agendados</div>
+                <div class="resumo__valor">0</div>
+              </div>
+              <div class="resumo__item">
+                <div class="resumo__rotulo">Cancelados</div>
+                <div class="resumo__valor">0</div>
+              </div>
+              <div class="resumo__item">
+                <div class="resumo__rotulo">Faturamento</div>
+                <div class="resumo__valor">R$ 0,00</div>
+              </div>
+              <div class="resumo__item">
+                <div class="resumo__rotulo">A receber</div>
+                <div class="resumo__valor">R$ 0,00</div>
               </div>
             </div>
 
-            <label class="campo campo--check">
-              <input type="checkbox">
-              <span>Atendimento domiciliar</span>
-            </label>
+            <h3 class="subtitulo">Por serviço</h3>
 
-            <p class="campo__dica">
-              Escolha um serviço para ver se ele pode ser feito na casa do tutor.
-            </p>
-
-            <div class="campo">
-              <label class="campo__rotulo" for="observacoes">
-                Observações (opcional)
-              </label>
-              <textarea class="campo__entrada" id="observacoes" rows="3"></textarea>
+            <div class="tabela-rolagem">
+              <table class="tabela">
+                <thead>
+                  <tr>
+                    <th>Serviço</th>
+                    <th>Qtd.</th>
+                    <th>Faturado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="3">Nenhum atendimento ativo neste dia.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <button class="botao botao--principal botao--cheio" type="submit">
-              Salvar agendamento
-            </button>
+            <h3 class="subtitulo">Dados</h3>
 
-          </form>
-        </section>
-
-        <section class="cartao">
-          <h2 class="cartao__titulo">Serviços e preços</h2>
-
-          <div class="servicos">
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Banho</strong>
-                <span class="servico__preco">R$ 60,00</span>
-              </div>
-              <p class="servico__descricao">
-                Banho com shampoo neutro, secagem e perfume.
-              </p>
-              <p class="servico__meta">60 min · faz atendimento domiciliar</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Tosa higiênica</strong>
-                <span class="servico__preco">R$ 80,00</span>
-              </div>
-              <p class="servico__descricao">
-                Tosa nas áreas de higiene, patas e rosto.
-              </p>
-              <p class="servico__meta">60 min · faz atendimento domiciliar</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Banho e tosa completa</strong>
-                <span class="servico__preco">R$ 120,00</span>
-              </div>
-              <p class="servico__descricao">
-                Banho, tosa completa e hidratação dos pelos.
-              </p>
-              <p class="servico__meta">120 min · faz atendimento domiciliar</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Consulta veterinária</strong>
-                <span class="servico__preco">R$ 150,00</span>
-              </div>
-              <p class="servico__descricao">Avaliação clínica geral com veterinário(a).</p>
-              <p class="servico__meta">30 min · faz atendimento domiciliar</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Vacinação</strong>
-                <span class="servico__preco">R$ 90,00</span>
-              </div>
-              <p class="servico__descricao">Aplicação de vacina com carteirinha atualizada.</p>
-              <p class="servico__meta">30 min · faz atendimento domiciliar</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Adestramento (sessão)</strong>
-                <span class="servico__preco">R$ 110,00</span>
-              </div>
-              <p class="servico__descricao">Sessão individual de adestramento básico.</p>
-              <p class="servico__meta">60 min · somente na loja</p>
-            </article>
-
-            <article class="servico">
-              <div class="servico__topo">
-                <strong>Hospedagem (check-in)</strong>
-                <span class="servico__preco">R$ 80,00</span>
-              </div>
-              <p class="servico__descricao">Recepção do pet para a diária de hospedagem.</p>
-              <p class="servico__meta">30 min · somente na loja</p>
-            </article>
-
-          </div>
-        </section>
-
-      </div>
-
-      <!-- COLUNA DIREITA -->
-      <div class="coluna coluna--agenda">
-
-        <section class="cartao" id="agenda-do-dia">
-          <h2 class="cartao__titulo">Agenda do dia</h2>
-
-          <div class="filtros">
-            <div class="campo">
-              <label class="campo__rotulo" for="dia">Dia</label>
-              <input class="campo__entrada" id="dia" type="date" value="2026-10-20">
+            <div class="acoes">
+              <button
+                class="botao botao--secundario botao--pequeno"
+                type="button"
+              >
+                Carregar dados de exemplo
+              </button>
+              <button
+                class="botao botao--secundario botao--pequeno"
+                type="button"
+              >
+                Exportar agenda (JSON)
+              </button>
+              <button class="botao botao--perigo botao--pequeno" type="button">
+                Limpar meus dados
+              </button>
             </div>
+          </section>
 
-            <div class="campo campo--busca">
-              <label class="campo__rotulo" for="busca">Buscar tutor ou pet</label>
-              <input class="campo__entrada" id="busca" type="search" placeholder="Digite para filtrar...">
+          <section class="cartao cartao--atalhos">
+            <h2 class="cartao__titulo">Atalhos de teclado</h2>
+
+            <div class="atalhos">
+              <div><kbd>N</kbd> vai para o formulário de novo agendamento</div>
+              <div><kbd>/</kbd> foca a busca da agenda</div>
+              <div><kbd>Esc</kbd> limpa a busca</div>
             </div>
+          </section>
+        </div>
+      </section>
 
-            <div class="campo">
-              <label class="campo__rotulo" for="status">Status</label>
-              <select class="campo__entrada" id="status">
-                <option>Todos</option>
-                <option>Agendado</option>
-                <option>Concluído</option>
-                <option>Cancelado</option>
-              </select>
-            </div>
-          </div>
+      <footer class="rodape">
+        AgendaPet Web — projeto de estudo (Módulo 01, Semanas 13 e 14). Patinhas
+        &amp; Cia é uma empresa fictícia.
+      </footer>
+    </main>
 
-          <div class="proximo">
-            Próximo atendimento de hoje: nenhum pendente
-          </div>
+    <script>
+      // Relógio do cabeçalho
+      function atualizarRelogio() {
+        const agora = new Date();
+        const hora = agora.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        document.querySelector("[data-relogio]").textContent = hora;
+      }
 
-          <p class="contador">0 agendamentos</p>
+      atualizarRelogio();
+      setInterval(atualizarRelogio, 1000);
 
-          <div class="vazio">
-            Nenhum agendamento para este dia. Use o formulário para criar o primeiro.
-          </div>
-        </section>
+      // Alternância do tema escuro
+      const botaoTema = document.querySelector("[data-tema]");
 
-        <section class="cartao" id="fechamento-do-dia">
-          <h2 class="cartao__titulo">Fechamento do dia</h2>
-          <p class="cartao__subtitulo">20/10/2026 · dia em andamento</p>
+      botaoTema.addEventListener("click", () => {
+        const escuro =
+          document.documentElement.getAttribute("data-tema") === "escuro";
 
-          <div class="resumo">
-            <div class="resumo__item">
-              <div class="resumo__rotulo">Atendimentos</div>
-              <div class="resumo__valor">0</div>
-            </div>
-            <div class="resumo__item">
-              <div class="resumo__rotulo">Concluídos</div>
-              <div class="resumo__valor">0</div>
-            </div>
-            <div class="resumo__item">
-              <div class="resumo__rotulo">Agendados</div>
-              <div class="resumo__valor">0</div>
-            </div>
-            <div class="resumo__item">
-              <div class="resumo__rotulo">Cancelados</div>
-              <div class="resumo__valor">0</div>
-            </div>
-            <div class="resumo__item">
-              <div class="resumo__rotulo">Faturamento</div>
-              <div class="resumo__valor">R$ 0,00</div>
-            </div>
-            <div class="resumo__item">
-              <div class="resumo__rotulo">A receber</div>
-              <div class="resumo__valor">R$ 0,00</div>
-            </div>
-          </div>
-
-          <h3 class="subtitulo">Por serviço</h3>
-
-          <div class="tabela-rolagem">
-            <table class="tabela">
-              <thead>
-                <tr>
-                  <th>Serviço</th>
-                  <th>Qtd.</th>
-                  <th>Faturado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="3">Nenhum atendimento ativo neste dia.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h3 class="subtitulo">Dados</h3>
-
-          <div class="acoes">
-            <button class="botao botao--secundario botao--pequeno" type="button">
-              Carregar dados de exemplo
-            </button>
-            <button class="botao botao--secundario botao--pequeno" type="button">
-              Exportar agenda (JSON)
-            </button>
-            <button class="botao botao--perigo botao--pequeno" type="button">
-              Limpar meus dados
-            </button>
-          </div>
-        </section>
-
-        <section class="cartao cartao--atalhos">
-          <h2 class="cartao__titulo">Atalhos de teclado</h2>
-
-          <div class="atalhos">
-            <div><kbd>N</kbd> vai para o formulário de novo agendamento</div>
-            <div><kbd>/</kbd> foca a busca da agenda</div>
-            <div><kbd>Esc</kbd> limpa a busca</div>
-          </div>
-        </section>
-
-      </div>
-
-    </section>
-
-    <footer class="rodape">
-      AgendaPet Web — projeto de estudo (Módulo 01, Semanas 13 e 14).
-      Patinhas &amp; Cia é uma empresa fictícia.
-    </footer>
-
-  </main>
-
-  <script>
-    // Relógio do cabeçalho
-    function atualizarRelogio() {
-      const agora = new Date();
-      const hora = agora.toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit"
+        if (escuro) {
+          document.documentElement.removeAttribute("data-tema");
+          botaoTema.textContent = "Tema escuro";
+        } else {
+          document.documentElement.setAttribute("data-tema", "escuro");
+          botaoTema.textContent = "Tema claro";
+        }
       });
-      document.querySelector("[data-relogio]").textContent = hora;
-    }
 
-    atualizarRelogio();
-    setInterval(atualizarRelogio, 1000);
+      // Atalhos de teclado
+      document.addEventListener("keydown", (evento) => {
+        const elemento = document.activeElement;
+        const digitando =
+          elemento &&
+          ["INPUT", "TEXTAREA", "SELECT"].includes(elemento.tagName);
 
-    // Alternância do tema escuro
-    const botaoTema = document.querySelector("[data-tema]");
+        if (digitando) return;
 
-    botaoTema.addEventListener("click", () => {
-      const escuro = document.documentElement.getAttribute("data-tema") === "escuro";
+        if (evento.key.toLowerCase() === "n") {
+          document.querySelector("#tutor").focus();
+        }
 
-      if (escuro) {
-        document.documentElement.removeAttribute("data-tema");
-        botaoTema.textContent = "Tema escuro";
-      } else {
-        document.documentElement.setAttribute("data-tema", "escuro");
-        botaoTema.textContent = "Tema claro";
-      }
-    });
+        if (evento.key === "/") {
+          evento.preventDefault();
+          document.querySelector("#busca").focus();
+        }
 
-    // Atalhos de teclado
-    document.addEventListener("keydown", (evento) => {
-      const elemento = document.activeElement;
-      const digitando =
-        elemento &&
-        ["INPUT", "TEXTAREA", "SELECT"].includes(elemento.tagName);
-
-      if (digitando) return;
-
-      if (evento.key.toLowerCase() === "n") {
-        document.querySelector("#tutor").focus();
-      }
-
-      if (evento.key === "/") {
-        evento.preventDefault();
-        document.querySelector("#busca").focus();
-      }
-
-      if (evento.key === "Escape") {
-        const busca = document.querySelector("#busca");
-        busca.value = "";
-        busca.blur();
-      }
-    });
-  </script>
-
-</body>
-
+        if (evento.key === "Escape") {
+          const busca = document.querySelector("#busca");
+          busca.value = "";
+          busca.blur();
+        }
+      });
+    </script>
+    <script type="module" src="./js/app.js"></script>
+  </body>
 </html>
