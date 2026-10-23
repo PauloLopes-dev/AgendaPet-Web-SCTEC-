@@ -131,6 +131,18 @@ if (formulario && mensagemFormulario) {
       return;
     }
 
+    const conflito = estado.agenda.some(
+      (item) =>
+        item.data === data && item.hora === hora && item.status !== "Cancelado",
+    );
+
+    if (conflito) {
+      mensagemFormulario.textContent =
+        "Já existe um agendamento para este dia e horário.";
+      formulario.querySelector("#horario").focus();
+      return;
+    }
+
     const agendamento = {
       protocolo: estado.gerarProtocolo(),
       tutor: String(dados.get("tutor")).trim(),
