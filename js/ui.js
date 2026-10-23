@@ -68,3 +68,43 @@ export function preencherSelectServicos(servicos) {
     select.append(opcao);
   });
 }
+export function renderizarAgendamentos(agendamentos, dataSelecionada) {
+  const lista = document.querySelector("#lista-agendamentos");
+  const mensagemVazia = document.querySelector(".vazio");
+  const contador = document.querySelector(".contador");
+
+  if (!lista || !mensagemVazia || !contador) {
+    console.error("Elementos da agenda não encontrados.");
+    return;
+  }
+
+  lista.replaceChildren();
+
+  const doDia = agendamentos.filter(
+    (agendamento) =>
+      agendamento.data === dataSelecionada &&
+      agendamento.status !== "Cancelado",
+  );
+
+  mensagemVazia.hidden = doDia.length > 0;
+  contador.textContent = `${doDia.length} agendamento${doDia.length === 1 ? "" : "s"}`;
+
+  doDia
+    .sort((a, b) => a.hora.localeCompare(b.hora))
+    .forEach((agendamento) => {
+      const item = document.createElement("article");
+      item.className = "servico";
+
+      const titulo = document.createElement("h3");
+      titulo.textContent = `${agendamento.hora} — ${agendamento.pet}`;
+
+      const detalhes = document.createElement("p");
+      detalhes.textContent = `Tutor: ${agendamento.tutor} | Serviço: ${agendamento.servicoNome}`;
+
+      const status = document.createElement("p");
+      status.textContent = `Status: ${agendamento.status}`;
+
+      item.append(titulo, detalhes, status);
+      lista.append(item);
+    });
+}

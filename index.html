@@ -9,25 +9,24 @@
   </head>
 
   <body>
-    <a class="pular-conteudo" href="#conteudo">
-      Pular para o conteúdo principal
-    </a>
+    <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
     <header class="topo">
       <div class="topo__marca">
         <div aria-hidden="true" style="font-size: 2.2rem; line-height: 1">
-          <img src="./img/logo.svg" alt="Logotipo Patinhas" />
+          <img src="./img/logo.svg" alt="LogotipoS " />
         </div>
         <div>
-          <div class="topo__loja">Patinhas &amp; Cia</div>
+          <p class="topo__loja">Patinhas &amp; Cia</p>
           <h1 class="topo__titulo">AgendaPet Web</h1>
         </div>
       </div>
 
       <div class="topo__ferramentas">
-        <div class="relogio">
+        <p class="relogio">
           <span class="relogio__rotulo">Agora</span>
-          <span class="relogio__hora" data-relogio>21:11</span>
-        </div>
+          <time class="relogio__hora" data-relogio>21:11</time>
+        </p>
 
         <button class="botao botao--secundario botao--pequeno" type="button">
           Pausar lembretes
@@ -40,24 +39,30 @@
         >
           Tema escuro
         </button>
-
-        <nav class="nav" aria-label="Navegação principal">
-          <a class="nav__link" href="#novo-agendamento">Novo agendamento</a>
-          <a class="nav__link" href="#agenda-do-dia">Agenda do dia</a>
-          <a class="nav__link" href="#fechamento-do-dia">Fechamento do dia</a>
-        </nav>
       </div>
+
+      <!-- O nav é filho direto do .topo (irmão das ferramentas): o CSS depende disso -->
+      <nav class="topo__nav" aria-label="Seções da página">
+        <ul class="nav">
+          <li>
+            <a class="nav__link" href="#novo-agendamento">Novo agendamento</a>
+          </li>
+          <li><a class="nav__link" href="#agenda-do-dia">Agenda do dia</a></li>
+          <li>
+            <a class="nav__link" href="#fechamento-do-dia">Fechamento do dia</a>
+          </li>
+        </ul>
+      </nav>
     </header>
 
-    <main class="principal" id="conteudo">
+    <main class="principal" id="conteudo" tabindex="-1">
       <section class="painel">
         <!-- COLUNA ESQUERDA -->
         <div class="coluna coluna--form">
           <section class="cartao" id="novo-agendamento">
             <h2 class="cartao__titulo">Novo agendamento</h2>
 
-            <form class="form" novalidade>
-
+            <form class="form" novalidate>
               <div class="campo">
                 <label class="campo__rotulo" for="tutor">Nome do tutor</label>
                 <input
@@ -85,42 +90,47 @@
                 />
               </div>
 
-              <div class="campo">
-                <label class="campo__rotulo" for="pet">Nome do pet</label>
-                <input
-                  class="campo__entrada"
-                  id="pet"
-                  name="pet"
-                  type="text"
-                  required
-                />
-              </div>
+              <div class="linha">
+                <div class="campo campo--grande">
+                  <label class="campo__rotulo" for="pet">Nome do pet</label>
+                  <input
+                    class="campo__entrada"
+                    id="pet"
+                    name="pet"
+                    type="text"
+                    required
+                  />
+                </div>
 
                 <div class="campo">
                   <label class="campo__rotulo" for="especie">Espécie</label>
-                  <select class="campo__entrada" id="especie" name="especie" required>
-                    <option value="" disabled selected>Selecione uma espécie...</option>
-                    <option value="cao">Cão</option>
-                    <option value="gato">Gato</option>
+                  <select
+                    class="campo__entrada"
+                    id="especie"
+                    name="especie"
+                    required
+                  >
+                    <option value="" disabled selected>Selecione...</option>
+                    <option>Cão</option>
+                    <option>Gato</option>
+                    <option>Outro</option>
                   </select>
                 </div>
               </div>
 
               <div class="campo">
                 <label class="campo__rotulo" for="servico">Serviço</label>
-
                 <select
-                      class="campo__entrada"
-                      id="servico"
-                      name="servico"
-                      required
-                    >
+                  class="campo__entrada"
+                  id="servico"
+                  name="servico"
+                  required
+                >
                   <option value="" disabled selected>
                     Carregando serviços...
                   </option>
                 </select>
               </div>
-
 
               <div class="linha">
                 <div class="campo">
@@ -146,12 +156,17 @@
                 </div>
               </div>
 
-              <label class="campo campo--check">
-                <input type="checkbox" />
-                <span>Atendimento domiciliar</span>
-              </label>
+              <div class="campo campo--check">
+                <input
+                  type="checkbox"
+                  id="domiciliar"
+                  name="domiciliar"
+                  aria-describedby="dica-domiciliar"
+                />
+                <label for="domiciliar">Atendimento domiciliar</label>
+              </div>
 
-              <p class="campo__dica">
+              <p class="campo__dica" id="dica-domiciliar">
                 Escolha um serviço para ver se ele pode ser feito na casa do
                 tutor.
               </p>
@@ -163,6 +178,7 @@
                 <textarea
                   class="campo__entrada"
                   id="observacoes"
+                  name="observacoes"
                   rows="3"
                 ></textarea>
               </div>
@@ -180,16 +196,21 @@
             </form>
           </section>
 
-          <section class="cartao">
-            <h2 class="cartao__titulo">Serviços e preços</h2>
+          <aside class="cartao" aria-labelledby="titulo-servicos">
+            <h2 class="cartao__titulo" id="titulo-servicos">
+              Serviços e preços
+            </h2>
 
-            <div class="servicos"
-                id="lista-servicos"
-                aria-live="polite"
-                aria-busy="true">
-              <p class="servicos__mensagem">Carregando serviços...</p>
-            </div>
-
+            <ul
+              class="servicos"
+              id="lista-servicos"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <li class="servicos__mensagem">Carregando serviços...</li>
+            </ul>
+          </aside>
+        </div>
 
         <!-- COLUNA DIREITA -->
         <div class="coluna coluna--agenda">
@@ -199,12 +220,7 @@
             <div class="filtros">
               <div class="campo">
                 <label class="campo__rotulo" for="dia">Dia</label>
-                <input
-                  class="campo__entrada"
-                  id="dia"
-                  type="date"
-                  value="2026-10-20"
-                />
+                <input class="campo__entrada" id="dia" type="date" />
               </div>
 
               <div class="campo campo--busca">
@@ -230,58 +246,65 @@
               </div>
             </div>
 
-            <div class="proximo">
-              Próximo atendimento de hoje: nenhum pendente
-            </div>
+            <p class="proximo">Próximo atendimento de hoje: nenhum pendente</p>
 
-            <p class="contador">0 agendamentos</p>
+            <p class="contador" aria-live="polite">0 agendamentos</p>
 
-            <div class="vazio">
+            <div
+              class="lista-agendamentos"
+              id="lista-agendamentos"
+              aria-live="polite"
+            ></div>
+
+            <p class="vazio">
               Nenhum agendamento para este dia. Use o formulário para criar o
               primeiro.
-            </div>
+            </p>
           </section>
 
           <section class="cartao" id="fechamento-do-dia">
             <h2 class="cartao__titulo">Fechamento do dia</h2>
             <p class="cartao__subtitulo">20/10/2026 · dia em andamento</p>
 
-            <div class="resumo">
+            <dl class="resumo">
               <div class="resumo__item">
-                <div class="resumo__rotulo">Atendimentos</div>
-                <div class="resumo__valor">0</div>
+                <dt class="resumo__rotulo">Atendimentos</dt>
+                <dd class="resumo__valor">0</dd>
               </div>
               <div class="resumo__item">
-                <div class="resumo__rotulo">Concluídos</div>
-                <div class="resumo__valor">0</div>
+                <dt class="resumo__rotulo">Concluídos</dt>
+                <dd class="resumo__valor">0</dd>
               </div>
               <div class="resumo__item">
-                <div class="resumo__rotulo">Agendados</div>
-                <div class="resumo__valor">0</div>
+                <dt class="resumo__rotulo">Agendados</dt>
+                <dd class="resumo__valor">0</dd>
               </div>
               <div class="resumo__item">
-                <div class="resumo__rotulo">Cancelados</div>
-                <div class="resumo__valor">0</div>
+                <dt class="resumo__rotulo">Cancelados</dt>
+                <dd class="resumo__valor">0</dd>
               </div>
               <div class="resumo__item">
-                <div class="resumo__rotulo">Faturamento</div>
-                <div class="resumo__valor">R$ 0,00</div>
+                <dt class="resumo__rotulo">Faturamento</dt>
+                <dd class="resumo__valor">R$ 0,00</dd>
               </div>
               <div class="resumo__item">
-                <div class="resumo__rotulo">A receber</div>
-                <div class="resumo__valor">R$ 0,00</div>
+                <dt class="resumo__rotulo">A receber</dt>
+                <dd class="resumo__valor">R$ 0,00</dd>
               </div>
-            </div>
+            </dl>
 
             <h3 class="subtitulo">Por serviço</h3>
 
             <div class="tabela-rolagem">
               <table class="tabela">
+                <caption class="so-leitor">
+                  Atendimentos e faturamento por serviço no dia selecionado
+                </caption>
                 <thead>
                   <tr>
-                    <th>Serviço</th>
-                    <th>Qtd.</th>
-                    <th>Faturado</th>
+                    <th scope="col">Serviço</th>
+                    <th scope="col">Qtd.</th>
+                    <th scope="col">Faturado</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -295,41 +318,43 @@
             <h3 class="subtitulo">Dados</h3>
 
             <div class="acoes">
-              <button
-                class="botao botao--secundario botao--pequeno"
-                type="button"
-              >
+              <button class="botao botao--secundario" type="button">
                 Carregar dados de exemplo
               </button>
-              <button
-                class="botao botao--secundario botao--pequeno"
-                type="button"
-              >
+              <button class="botao botao--secundario" type="button">
                 Exportar agenda (JSON)
               </button>
-              <button class="botao botao--perigo botao--pequeno" type="button">
+              <button class="botao botao--perigo" type="button">
                 Limpar meus dados
               </button>
             </div>
           </section>
 
-          <section class="cartao cartao--atalhos">
-            <h2 class="cartao__titulo">Atalhos de teclado</h2>
+          <aside
+            class="cartao cartao--atalhos"
+            aria-labelledby="titulo-atalhos"
+          >
+            <h2 class="cartao__titulo" id="titulo-atalhos">
+              Atalhos de teclado
+            </h2>
 
-            <div class="atalhos">
-              <div><kbd>N</kbd> vai para o formulário de novo agendamento</div>
-              <div><kbd>/</kbd> foca a busca da agenda</div>
-              <div><kbd>Esc</kbd> limpa a busca</div>
-            </div>
-          </section>
+            <ul class="atalhos">
+              <li><kbd>N</kbd> vai para o formulário de novo agendamento</li>
+              <li><kbd>/</kbd> foca a busca da agenda</li>
+              <li><kbd>Esc</kbd> limpa a busca</li>
+            </ul>
+          </aside>
         </div>
       </section>
+    </main>
 
-      <footer class="rodape">
+    <!-- O rodapé fica FORA do <main>: o .principal tem largura máxima e padding próprios -->
+    <footer class="rodape">
+      <p>
         AgendaPet Web — projeto de estudo (Módulo 01, Semanas 13 e 14). Patinhas
         &amp; Cia é uma empresa fictícia.
-      </footer>
-    </main>
+      </p>
+    </footer>
 
     <script>
       // Relógio do cabeçalho

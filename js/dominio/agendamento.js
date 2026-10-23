@@ -42,14 +42,11 @@ export class AgendamentoDomiciliar extends Agendamento {
   }
 }
 // Fábrica: decide a classe a partir do objeto simples (necessária para restaurar do localStorage)
-export function criarAgendamento(dados, catalogo) {
-  /* TODO: achar o serviço pelo id; domiciliar ? new
-AgendamentoDomiciliar(...) : new Agendamento(...) */
-}
-// CLOSURE: `contador` fica "presa" na função devolvida (sem variável global)
 export function criarGeradorProtocolo(ultimo = 0) {
   let contador = ultimo;
+
   return function proximoProtocolo() {
-    /* TODO: somar 1 e devolver "AP-0001" (dica: String(n).padStart(4, '0')) */
+    contador += 1;
+    return `AP-${String(contador).padStart(4, "0")}`;
   };
 }
