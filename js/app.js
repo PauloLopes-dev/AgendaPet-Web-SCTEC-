@@ -81,45 +81,67 @@ if (formulario && mensagemFormulario) {
     evento.preventDefault();
     mensagemFormulario.textContent = "";
 
-    if (!formulario.checkValidity()) {
-      mensagemFormulario.textContent =
-        "Preencha todos os campos obrigatórios corretamente.";
-      formulario.querySelector(":invalid")?.focus();
-      return;
-    }
-
     const dados = new FormData(formulario);
+
     const telefone = String(dados.get("telefone") || "");
     const digitosTelefone = telefone.replace(/\D/g, "");
     const data = String(dados.get("data") || "");
     const hora = String(dados.get("horario") || "");
     const servicoId = String(dados.get("servico") || "");
+
     const servico = estado.servicos.find((item) => item.id === servicoId);
 
-    if (digitosTelefone.length < 10 || digitosTelefone.length > 11) {
-      mensagemFormulario.textContent = "Informe um telefone válido com DDD.";
-      formulario.querySelector("#telefone").focus();
-      return;
-    }
+    // Percorre os campos na ordem em que aparecem no formulário.
+    const campos = Array.from(
+      formulario.querySelectorAll("input, select, textarea"),
+    );
 
-    if (data < hojeISO()) {
-      mensagemFormulario.textContent =
-        "A data do agendamento não pode estar no passado.";
-      formulario.querySelector("#data").focus();
-      return;
-    }
+    for (const campo of campos) {
+      // Telefone: verifica se tem DDD e quantidade válida de dígitos.
+      if (
+        campo.id === "telefone" &&
+        campo.value.trim() !== "" &&
+        (digitosTelefone.length < 10 || digitosTelefone.length > 11)
+      ) {
+        mensagemFormulario.textContent = "Informe um telefone válido com DDD.";
+        campo.focus();
+        return;
+      }
 
-    if (hora < "08:00" || hora > "17:30") {
-      mensagemFormulario.textContent =
-        "Escolha um horário entre 08:00 e 17:30.";
-      formulario.querySelector("#horario").focus();
-      return;
-    }
+      // Data: não permite agendamentos no passado.
+      if (campo.id === "data" && campo.value && campo.value < hojeISO()) {
+        mensagemFormulario.textContent =
+          "A data do agendamento não pode estar no passado.";
+        campo.focus();
+        return;
+      }
 
-    if (!servico) {
-      mensagemFormulario.textContent = "Selecione um serviço válido.";
-      formulario.querySelector("#servico").focus();
-      return;
+      // Horário: respeita o funcionamento da loja.
+      if (
+        campo.id === "horario" &&
+        campo.value &&
+        (campo.value < "08:00" || campo.value > "17:30")
+      ) {
+        mensagemFormulario.textContent =
+          "Escolha um horário entre 08:00 e 17:30.";
+        campo.focus();
+        return;
+      }
+
+      // Serviço: verifica se a opção existe na lista carregada.
+      if (campo.id === "servico" && campo.value && !servico) {
+        mensagemFormulario.textContent = "Selecione um serviço válido.";
+        campo.focus();
+        return;
+      }
+
+      // Verifica os campos obrigatórios e as regras HTML.
+      if (!campo.checkValidity()) {
+        mensagemFormulario.textContent =
+          "Preencha todos os campos obrigatórios corretamente.";
+        campo.focus();
+        return;
+      }
     }
 
     const domiciliar = dados.get("domiciliar") === "on";
