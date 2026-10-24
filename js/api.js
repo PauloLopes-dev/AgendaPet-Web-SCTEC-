@@ -1,25 +1,34 @@
-const estado = {
-    servicos: [],              // Servico[]
-    agenda: [],                // Agendamento[] (e AgendamentoDomiciliar)
-    dataAgenda: hojeISO(),     // dia exibido na agenda
-    filtroStatus: 'todos',
-    busca: '',
-    expandidos: new Set(),     // protocolos com detalhes abertos
-    feriado: null,             // { date, name } se a data escolhida for feriado
-    gerarProtocolo: criarGeradorProtocolo(0),   // closure
-    timerLembretes: null,      // id do setInterval (só pode existir UM)
-    lembretesAtivos: true,
-};
-
-async function buscarJSON(url) {
-    let resposta;
-    try {
-        resposta = await fetch(url);                       // só REJEITA se a requisição nem chegou ao servidor
-    } catch {
-        throw new ErroApi('rede', 'Sem conexão.');
-    }
-    if (!resposta.ok) throw new ErroApi('http', `Erro HTTP ${resposta.status}`);   // 404, 500... NÃO rejeitam o 
-    fetch
-    return resposta.json();                              // também é uma Promise: use await
+export class ErroApi extends Error {
+  constructor(tipo, mensagem) {
+    super(mensagem);
+    this.name = "ErroApi";
+    this.tipo = tipo;
+  }
 }
-// ViaCEP: depois de buscarJSON, confira  if (dados.erro)  → ErroApi('nao-encontrado')   (HTTP 200 com {"erro": true })
+
+export async function buscarJSON(url) {
+  let resposta;
+
+  try {
+    resposta = await fetch(url);
+  } catch {
+    throw new ErroApi("rede", "Não foi possível conectar ao servidor.");
+  }
+
+  if (!resposta.ok) {
+    throw new ErroApi("http", `Erro HTTP ${resposta.status}`);
+  }
+
+  try {
+    return await resposta.json();
+  } catch {
+    throw new ErroApi(
+      "json",
+      "Não foi possível interpretar os dados recebidos.",
+    );
+  }
+}
+
+export async function buscarServicos() {
+  return buscarJSON("./data/servicos.json");
+}
