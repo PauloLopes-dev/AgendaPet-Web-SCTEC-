@@ -12,6 +12,7 @@ function hojeISO() {
   const ano = agora.getFullYear();
   const mes = String(agora.getMonth() + 1).padStart(2, "0");
   const dia = String(agora.getDate()).padStart(2, "0");
+
   return `${ano}-${mes}-${dia}`;
 }
 
@@ -19,10 +20,13 @@ const formulario = document.querySelector(".form");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
 const campoDataAgenda = document.querySelector("#dia");
 
+// Carrega os agendamentos salvos apenas uma vez.
+const agendaSalva = lerJSON("agendamentos", []);
+
 const estado = {
   servicos: [],
-  agenda: lerJSON("agendamentos", []),
-  gerarProtocolo: criarGeradorProtocolo(lerJSON("agendamentos", []).length),
+  agenda: agendaSalva,
+  gerarProtocolo: criarGeradorProtocolo(agendaSalva.length),
 };
 
 if (campoDataAgenda) {
@@ -31,7 +35,10 @@ if (campoDataAgenda) {
 
 if (formulario) {
   const campoData = formulario.querySelector("#data");
-  if (campoData) campoData.min = hojeISO();
+
+  if (campoData) {
+    campoData.min = hojeISO();
+  }
 }
 
 function atualizarAgenda() {
@@ -42,6 +49,7 @@ function atualizarAgenda() {
 
 async function carregarServicos() {
   const lista = document.querySelector("#lista-servicos");
+
   if (!lista) return;
 
   lista.setAttribute("aria-busy", "true");
@@ -49,11 +57,13 @@ async function carregarServicos() {
 
   const carregando = document.createElement("li");
   carregando.className = "servicos__mensagem";
-  carregando.textContent = "Carregando serviços...";
+  carregando.textContent = "Carregando serviços.";
+
   lista.append(carregando);
 
   try {
     estado.servicos = await buscarServicos();
+
     renderizarServicos(estado.servicos);
     preencherSelectServicos(estado.servicos);
   } catch (erro) {
@@ -91,13 +101,13 @@ if (formulario && mensagemFormulario) {
 
     const servico = estado.servicos.find((item) => item.id === servicoId);
 
-    // Percorre os campos na ordem em que aparecem no formulário.
+    // Valida os campos na ordem em que aparecem no formulário.
     const campos = Array.from(
       formulario.querySelectorAll("input, select, textarea"),
     );
 
     for (const campo of campos) {
-      // Telefone: verifica se tem DDD e quantidade válida de dígitos.
+      // Telefone: exige DDD e 10 ou 11 dígitos.
       if (
         campo.id === "telefone" &&
         campo.value.trim() !== "" &&
@@ -128,14 +138,14 @@ if (formulario && mensagemFormulario) {
         return;
       }
 
-      // Serviço: verifica se a opção existe na lista carregada.
+      // Serviço: verifica se a opção selecionada existe.
       if (campo.id === "servico" && campo.value && !servico) {
         mensagemFormulario.textContent = "Selecione um serviço válido.";
         campo.focus();
         return;
       }
 
-      // Verifica os campos obrigatórios e as regras HTML.
+      // Verifica campos obrigatórios e regras HTML.
       if (!campo.checkValidity()) {
         mensagemFormulario.textContent =
           "Preencha todos os campos obrigatórios corretamente.";
@@ -144,15 +154,18 @@ if (formulario && mensagemFormulario) {
       }
     }
 
+    // Verifica as regras de atendimento domiciliar.
     const domiciliar = dados.get("domiciliar") === "on";
 
-    if (domiciliar && !servico.domiciliar) {
+    if (domiciliar && (!servico || !servico.domiciliar)) {
       mensagemFormulario.textContent =
         "O serviço selecionado não permite atendimento domiciliar.";
+
       formulario.querySelector("#domiciliar").focus();
       return;
     }
 
+    // Impede dois agendamentos no mesmo dia e horário.
     const conflito = estado.agenda.some(
       (item) =>
         item.data === data && item.hora === hora && item.status !== "Cancelado",
@@ -161,10 +174,12 @@ if (formulario && mensagemFormulario) {
     if (conflito) {
       mensagemFormulario.textContent =
         "Já existe um agendamento para este dia e horário.";
+
       formulario.querySelector("#horario").focus();
       return;
     }
 
+    // Monta o objeto do novo agendamento.
     const agendamento = {
       protocolo: estado.gerarProtocolo(),
       tutor: String(dados.get("tutor")).trim(),
@@ -181,15 +196,20 @@ if (formulario && mensagemFormulario) {
       status: "Agendado",
     };
 
+    // Adiciona temporariamente à agenda.
     estado.agenda.push(agendamento);
 
+    // Salva no armazenamento do navegador.
     if (!salvarJSON("agendamentos", estado.agenda)) {
       estado.agenda.pop();
+
       mensagemFormulario.textContent =
         "Não foi possível salvar. Verifique o armazenamento do navegador e tente novamente.";
+
       return;
     }
 
+    // Limpa o formulário após salvar com sucesso.
     formulario.reset();
 
     if (campoDataAgenda) {
@@ -202,7 +222,9 @@ if (formulario && mensagemFormulario) {
   });
 }
 
+// Atualiza a agenda quando o usuário escolhe outro dia.
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
 
+// Inicializa a aplicação.
 carregarServicos();
 atualizarAgenda();
