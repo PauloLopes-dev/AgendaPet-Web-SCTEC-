@@ -28,14 +28,14 @@ npm start
 
 ## 3. Decisões de negócio
 
-| Decisão                       | Valor                           | Onde está no código |
-| ----------------------------- | ------------------------------- | ------------------- |
-| Horário de funcionamento      | [ex.: 08:00 às 18:00]           | [arquivo/função]    |
-| Conflito de horário           | [regra]                         | [arquivo/função]    |
-| Taxa domiciliar               | [valor e regra]                 | [arquivo/função]    |
-| Faturamento                   | [o que entra e o que não entra] | [arquivo/função]    |
-| Validade do cache de feriados | [ex.: 30 dias]                  | [arquivo/função]    |
-| Quando as APIs falham         | [o que acontece]                | [arquivo/função]    |
+| Decisão                       | Valor                           | Onde está no código                        |
+| ----------------------------- | ------------------------------- | ------------------------------------------ |
+| Horário de funcionamento      | 08:00 às 17:30                  | `js/app.js` — validação do campo `horario` |
+| Conflito de horário           | [regra]                         | [arquivo/função]                           |
+| Taxa domiciliar               | [valor e regra]                 | [arquivo/função]                           |
+| Faturamento                   | [o que entra e o que não entra] | [arquivo/função]                           |
+| Validade do cache de feriados | [ex.: 30 dias]                  | [arquivo/função]                           |
+| Quando as APIs falham         | [o que acontece]                | [arquivo/função]                           |
 
 ## 4. Conceitos do Módulo 01: onde foram aplicados
 
