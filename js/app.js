@@ -1,4 +1,4 @@
-import { buscarServicos } from "./api.js";
+import { buscarServicos, buscarCep } from "./api.js";
 import {
   renderizarServicos,
   preencherSelectServicos,
@@ -20,6 +20,71 @@ const formulario = document.querySelector(".form");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
 const campoDataAgenda = document.querySelector("#dia");
 
+// Campos relacionados ao atendimento domiciliar.
+const campoServico = document.querySelector("#servico");
+const campoDomiciliar = document.querySelector("#domiciliar");
+const grupoEndereco = document.querySelector("#grupo-endereco");
+
+const camposEndereco = [
+  "cep",
+  "logradouro",
+  "numero",
+  "complemento",
+  "bairro",
+  "cidade",
+  "uf",
+].map((id) => document.querySelector(`#${id}`));
+
+const campoCep = document.querySelector("#cep");
+const mensagemCep = document.querySelector("#mensagem-cep");
+
+async function preencherEnderecoPeloCep() {
+  if (!campoCep) return;
+
+  const cep = campoCep.value.replace(/\D/g, "");
+
+  console.log("CEP digitado:", campoCep.value);
+  console.log("CEP limpo:", cep);
+  console.log("Quantidade de dígitos:", cep.length);
+
+  if (cep.length !== 8) {
+    if (mensagemCep) {
+      mensagemCep.textContent = "CEP inválido. Digite os 8 dígitos do CEP.";
+    }
+
+    return;
+  }
+
+  if (mensagemCep) {
+    mensagemCep.textContent = "Consultando CEP...";
+  }
+
+  try {
+    const endereco = await buscarCep(cep);
+
+    document.querySelector("#logradouro").value = endereco.logradouro || "";
+
+    document.querySelector("#bairro").value = endereco.bairro || "";
+
+    document.querySelector("#cidade").value = endereco.localidade || "";
+
+    document.querySelector("#uf").value = endereco.uf || "";
+
+    document.querySelector("#complemento").value = endereco.complemento || "";
+
+    if (mensagemCep) {
+      mensagemCep.textContent = "Endereço consultado. Confira os dados.";
+    }
+  } catch (erro) {
+    if (mensagemCep) {
+      mensagemCep.textContent =
+        erro.message || "Não foi possível consultar o CEP.";
+    }
+  }
+}
+
+campoCep?.addEventListener("blur", preencherEnderecoPeloCep);
+
 // Carrega os agendamentos salvos apenas uma vez.
 const agendaSalva = lerJSON("agendamentos", []);
 
@@ -40,6 +105,42 @@ if (formulario) {
     campoData.min = hojeISO();
   }
 }
+
+// Mostra o endereço somente se o serviço permitir
+// atendimento domiciliar e o checkbox estiver marcado.
+function atualizarEndereco() {
+  const servico = estado.servicos.find(
+    (item) => item.id === campoServico?.value,
+  );
+
+  const permiteDomiciliar = Boolean(servico?.domiciliar);
+  const mostrarEndereco =
+    permiteDomiciliar && Boolean(campoDomiciliar?.checked);
+
+  if (campoDomiciliar) {
+    campoDomiciliar.disabled = !permiteDomiciliar;
+
+    if (!permiteDomiciliar) {
+      campoDomiciliar.checked = false;
+    }
+  }
+
+  if (grupoEndereco) {
+    grupoEndereco.hidden = !mostrarEndereco;
+  }
+
+  camposEndereco.forEach((campo) => {
+    if (campo) {
+      // Complemento é opcional; os demais campos são obrigatórios
+      // somente durante um atendimento domiciliar.
+      campo.required = mostrarEndereco && campo.id !== "complemento";
+    }
+  });
+}
+
+// Atualiza a exibição quando o serviço ou checkbox mudar.
+campoServico?.addEventListener("change", atualizarEndereco);
+campoDomiciliar?.addEventListener("change", atualizarEndereco);
 
 function atualizarAgenda() {
   if (campoDataAgenda) {
@@ -66,6 +167,9 @@ async function carregarServicos() {
 
     renderizarServicos(estado.servicos);
     preencherSelectServicos(estado.servicos);
+
+    // Reavalia o checkbox depois de carregar os serviços.
+    atualizarEndereco();
   } catch (erro) {
     lista.replaceChildren();
 
@@ -161,7 +265,7 @@ if (formulario && mensagemFormulario) {
       mensagemFormulario.textContent =
         "O serviço selecionado não permite atendimento domiciliar.";
 
-      formulario.querySelector("#domiciliar").focus();
+      campoDomiciliar?.focus();
       return;
     }
 
@@ -192,6 +296,19 @@ if (formulario && mensagemFormulario) {
       data,
       hora,
       domiciliar,
+
+      cep: domiciliar ? String(dados.get("cep") || "").trim() : "",
+      logradouro: domiciliar
+        ? String(dados.get("logradouro") || "").trim()
+        : "",
+      numero: domiciliar ? String(dados.get("numero") || "").trim() : "",
+      complemento: domiciliar
+        ? String(dados.get("complemento") || "").trim()
+        : "",
+      bairro: domiciliar ? String(dados.get("bairro") || "").trim() : "",
+      cidade: domiciliar ? String(dados.get("cidade") || "").trim() : "",
+      uf: domiciliar ? String(dados.get("uf") || "").trim() : "",
+
       observacoes: String(dados.get("observacoes") || "").trim(),
       status: "Agendado",
     };
@@ -212,6 +329,9 @@ if (formulario && mensagemFormulario) {
     // Limpa o formulário após salvar com sucesso.
     formulario.reset();
 
+    // Esconde o endereço e atualiza o estado do checkbox.
+    atualizarEndereco();
+
     if (campoDataAgenda) {
       campoDataAgenda.value = data;
     }
@@ -226,5 +346,6 @@ if (formulario && mensagemFormulario) {
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
 
 // Inicializa a aplicação.
+atualizarEndereco();
 carregarServicos();
 atualizarAgenda();

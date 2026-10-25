@@ -32,3 +32,21 @@ export async function buscarJSON(url) {
 export async function buscarServicos() {
   return buscarJSON("./data/servicos.json");
 }
+
+export async function buscarCep(cep) {
+  const cepLimpo = String(cep).replace(/\D/g, "");
+
+  if (!/^\d{8}$/.test(cepLimpo)) {
+    throw new ErroApi("cep-invalido", "Digite um CEP válido com 8 dígitos.");
+  }
+
+  const endereco = await buscarJSON(
+    `https://viacep.com.br/ws/${cepLimpo}/json/`,
+  );
+
+  if (endereco.erro) {
+    throw new ErroApi("cep-nao-encontrado", "CEP não encontrado.");
+  }
+
+  return endereco;
+}

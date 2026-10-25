@@ -68,6 +68,7 @@ export function preencherSelectServicos(servicos) {
     select.append(opcao);
   });
 }
+
 export function renderizarAgendamentos(agendamentos, dataSelecionada) {
   const lista = document.querySelector("#lista-agendamentos");
   const mensagemVazia = document.querySelector(".vazio");
@@ -87,7 +88,10 @@ export function renderizarAgendamentos(agendamentos, dataSelecionada) {
   );
 
   mensagemVazia.hidden = doDia.length > 0;
-  contador.textContent = `${doDia.length} agendamento${doDia.length === 1 ? "" : "s"}`;
+
+  contador.textContent = `${doDia.length} agendamento${
+    doDia.length === 1 ? "" : "s"
+  }`;
 
   doDia
     .sort((a, b) => a.hora.localeCompare(b.hora))
@@ -95,16 +99,43 @@ export function renderizarAgendamentos(agendamentos, dataSelecionada) {
       const item = document.createElement("article");
       item.className = "servico";
 
+      // Hora + nome do pet
       const titulo = document.createElement("h3");
       titulo.textContent = `${agendamento.hora} — ${agendamento.pet}`;
 
-      const detalhes = document.createElement("p");
-      detalhes.textContent = `Tutor: ${agendamento.tutor} | Serviço: ${agendamento.servicoNome}`;
+      // Nome do tutor
+      const tutor = document.createElement("p");
+      tutor.textContent = `Tutor: ${agendamento.tutor}`;
 
+      // Status
       const status = document.createElement("p");
       status.textContent = `Status: ${agendamento.status}`;
 
-      item.append(titulo, detalhes, status);
+      // Ordem: hora/pet → tutor → status
+      item.append(titulo, tutor, status);
+
+      // Endereço somente para atendimento domiciliar
+      if (agendamento.domiciliar) {
+        const endereco = document.createElement("p");
+
+        const partesEndereco = [
+          agendamento.logradouro,
+          agendamento.numero,
+          agendamento.complemento,
+          agendamento.bairro,
+          agendamento.cidade,
+          agendamento.uf,
+          agendamento.cep,
+        ].filter((parte) => parte && String(parte).trim() !== "");
+
+        endereco.textContent = partesEndereco.length
+          ? `Endereço: ${partesEndereco.join(", ")}`
+          : "Endereço domiciliar não informado.";
+
+        item.append(endereco);
+      }
+
+      // Adiciona cada agendamento somente uma vez
       lista.append(item);
     });
 }
