@@ -50,3 +50,7 @@ export async function buscarCep(cep) {
 
   return endereco;
 }
+
+export async function buscarFeriados(ano) {
+  return buscarJSON(`https://brasilapi.com.br/api/feriados/v1/${ano}?uf=SC`);
+}

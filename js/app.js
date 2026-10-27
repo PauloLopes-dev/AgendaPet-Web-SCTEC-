@@ -1,4 +1,4 @@
-import { buscarServicos, buscarCep } from "./api.js";
+import { buscarServicos, buscarCep, buscarFeriados } from "./api.js";
 import {
   renderizarServicos,
   preencherSelectServicos,
@@ -16,9 +16,65 @@ function hojeISO() {
   return `${ano}-${mes}-${dia}`;
 }
 
+const VALIDADE_CACHE_FERIADOS = 30 * 24 * 60 * 60 * 1000;
+
+async function obterFeriados(ano) {
+  const chave = `feriados-${ano}`;
+  const cache = lerJSON(chave, null);
+
+  // Reutiliza o cache se ainda estiver válido.
+  if (
+    cache &&
+    Array.isArray(cache.dados) &&
+    Date.now() - cache.consultadoEm < VALIDADE_CACHE_FERIADOS
+  ) {
+    return cache.dados;
+  }
+
+  // Se não houver cache válido, consulta a API.
+  const feriados = await buscarFeriados(ano);
+
+  if (!Array.isArray(feriados)) {
+    throw new Error("A API não retornou uma lista válida de feriados.");
+  }
+
+  // Salva a lista e a data da consulta no localStorage.
+  salvarJSON(chave, {
+    dados: feriados,
+    consultadoEm: Date.now(),
+  });
+
+  return feriados;
+}
+
 const formulario = document.querySelector(".form");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
 const campoDataAgenda = document.querySelector("#dia");
+const campoDataFormulario = document.querySelector("#data");
+campoDataFormulario?.addEventListener("change", async () => {
+  const data = campoDataFormulario.value;
+
+  mensagemFormulario.textContent = "";
+
+  if (!data) {
+    return;
+  }
+
+  try {
+    const feriados = await obterFeriados(Number(data.slice(0, 4)));
+
+    const feriado = feriados.find((item) => item.date === data);
+
+    if (feriado) {
+      mensagemFormulario.textContent = `${feriado.name} é feriado nesta data. Ao salvar, será necessário confirmar o agendamento.`;
+    }
+  } catch (erro) {
+    console.error("Falha ao consultar feriados:", erro);
+
+    mensagemFormulario.textContent =
+      "Não foi possível consultar os feriados. Você poderá tentar continuar com o agendamento.";
+  }
+});
 
 // Campos relacionados ao atendimento domiciliar.
 const campoServico = document.querySelector("#servico");
@@ -191,9 +247,8 @@ async function carregarServicos() {
 }
 
 if (formulario && mensagemFormulario) {
-  formulario.addEventListener("submit", (evento) => {
+  formulario.addEventListener("submit", async (evento) => {
     evento.preventDefault();
-    mensagemFormulario.textContent = "";
 
     const dados = new FormData(formulario);
 
@@ -281,6 +336,39 @@ if (formulario && mensagemFormulario) {
 
       formulario.querySelector("#horario").focus();
       return;
+    }
+
+    // Verifica se a data escolhida é feriado.
+    try {
+      const feriados = await obterFeriados(Number(data.slice(0, 4)));
+
+      const feriado = feriados.find((item) => item.date === data);
+
+      if (feriado) {
+        const confirmou = window.confirm(
+          `${feriado.name} é feriado nesta data. Deseja agendar mesmo assim?`,
+        );
+
+        if (!confirmou) {
+          mensagemFormulario.textContent =
+            "Agendamento não salvo. Escolha outra data, se desejar.";
+          formulario.querySelector("#data").focus();
+          return;
+        }
+      }
+    } catch (erro) {
+      console.error("Falha ao consultar feriados:", erro);
+
+      const continuar = window.confirm(
+        "Não foi possível consultar os feriados. Deseja continuar com o agendamento mesmo assim?",
+      );
+
+      if (!continuar) {
+        mensagemFormulario.textContent =
+          "Agendamento não salvo. Tente consultar a data novamente.";
+        formulario.querySelector("#data").focus();
+        return;
+      }
     }
 
     // Monta o objeto do novo agendamento.
