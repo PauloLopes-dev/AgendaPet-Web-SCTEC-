@@ -177,6 +177,106 @@
                 tutor.
               </p>
 
+              <!-- Endereço do atendimento domiciliar -->
+              <fieldset class="grupo-endereco" id="grupo-endereco" hidden>
+                <legend>Endereço do atendimento</legend>
+
+                <div class="campo">
+                  <label class="campo__rotulo" for="cep">CEP</label>
+                  <input
+                    class="campo__entrada"
+                    id="cep"
+                    name="cep"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="postal-code"
+                    placeholder="89201-000"
+                    maxlength="9"
+                    aria-describedby="mensagem-cep"
+                  />
+                  <p
+                    class="campo__dica"
+                    id="mensagem-cep"
+                    role="status"
+                    aria-live="polite"
+                  ></p>
+                </div>
+
+                <div class="campo">
+                  <label class="campo__rotulo" for="logradouro"
+                    >Logradouro</label
+                  >
+                  <input
+                    class="campo__entrada"
+                    id="logradouro"
+                    name="logradouro"
+                    type="text"
+                    autocomplete="address-line1"
+                  />
+                </div>
+
+                <div class="linha">
+                  <div class="campo">
+                    <label class="campo__rotulo" for="numero">Número</label>
+                    <input
+                      class="campo__entrada"
+                      id="numero"
+                      name="numero"
+                      type="text"
+                      autocomplete="address-line2"
+                    />
+                  </div>
+
+                  <div class="campo">
+                    <label class="campo__rotulo" for="complemento"
+                      >Complemento</label
+                    >
+                    <input
+                      class="campo__entrada"
+                      id="complemento"
+                      name="complemento"
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                <div class="campo">
+                  <label class="campo__rotulo" for="bairro">Bairro</label>
+                  <input
+                    class="campo__entrada"
+                    id="bairro"
+                    name="bairro"
+                    type="text"
+                    autocomplete="address-level3"
+                  />
+                </div>
+
+                <div class="linha">
+                  <div class="campo campo--grande">
+                    <label class="campo__rotulo" for="cidade">Cidade</label>
+                    <input
+                      class="campo__entrada"
+                      id="cidade"
+                      name="cidade"
+                      type="text"
+                      autocomplete="address-level2"
+                    />
+                  </div>
+
+                  <div class="campo">
+                    <label class="campo__rotulo" for="uf">UF</label>
+                    <input
+                      class="campo__entrada"
+                      id="uf"
+                      name="uf"
+                      type="text"
+                      maxlength="2"
+                      autocomplete="address-level1"
+                    />
+                  </div>
+                </div>
+              </fieldset>
+
               <div class="campo">
                 <label class="campo__rotulo" for="observacoes">
                   Observações (opcional)

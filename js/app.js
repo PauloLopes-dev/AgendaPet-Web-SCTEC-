@@ -1,4 +1,4 @@
-import { buscarServicos } from "./api.js";
+import { buscarServicos, buscarCep, buscarFeriados } from "./api.js";
 import {
   renderizarServicos,
   preencherSelectServicos,
@@ -16,9 +16,131 @@ function hojeISO() {
   return `${ano}-${mes}-${dia}`;
 }
 
+const VALIDADE_CACHE_FERIADOS = 30 * 24 * 60 * 60 * 1000;
+
+async function obterFeriados(ano) {
+  const chave = `feriados-${ano}`;
+  const cache = lerJSON(chave, null);
+
+  // Reutiliza o cache se ainda estiver válido.
+  if (
+    cache &&
+    Array.isArray(cache.dados) &&
+    Date.now() - cache.consultadoEm < VALIDADE_CACHE_FERIADOS
+  ) {
+    return cache.dados;
+  }
+
+  // Se não houver cache válido, consulta a API.
+  const feriados = await buscarFeriados(ano);
+
+  if (!Array.isArray(feriados)) {
+    throw new Error("A API não retornou uma lista válida de feriados.");
+  }
+
+  // Salva a lista e a data da consulta no localStorage.
+  salvarJSON(chave, {
+    dados: feriados,
+    consultadoEm: Date.now(),
+  });
+
+  return feriados;
+}
+
 const formulario = document.querySelector(".form");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
 const campoDataAgenda = document.querySelector("#dia");
+const campoStatusAgenda = document.querySelector("#status");
+const campoDataFormulario = document.querySelector("#data");
+campoDataFormulario?.addEventListener("change", async () => {
+  const data = campoDataFormulario.value;
+
+  mensagemFormulario.textContent = "";
+
+  if (!data) {
+    return;
+  }
+
+  try {
+    const feriados = await obterFeriados(Number(data.slice(0, 4)));
+
+    const feriado = feriados.find((item) => item.date === data);
+
+    if (feriado) {
+      mensagemFormulario.textContent = `${feriado.name} é feriado nesta data. Ao salvar, será necessário confirmar o agendamento.`;
+    }
+  } catch (erro) {
+    console.error("Falha ao consultar feriados:", erro);
+
+    mensagemFormulario.textContent =
+      "Não foi possível consultar os feriados. Você poderá tentar continuar com o agendamento.";
+  }
+});
+
+// Campos relacionados ao atendimento domiciliar.
+const campoServico = document.querySelector("#servico");
+const campoDomiciliar = document.querySelector("#domiciliar");
+const grupoEndereco = document.querySelector("#grupo-endereco");
+
+const camposEndereco = [
+  "cep",
+  "logradouro",
+  "numero",
+  "complemento",
+  "bairro",
+  "cidade",
+  "uf",
+].map((id) => document.querySelector(`#${id}`));
+
+const campoCep = document.querySelector("#cep");
+const mensagemCep = document.querySelector("#mensagem-cep");
+
+async function preencherEnderecoPeloCep() {
+  if (!campoCep) return;
+
+  const cep = campoCep.value.replace(/\D/g, "");
+
+  console.log("CEP digitado:", campoCep.value);
+  console.log("CEP limpo:", cep);
+  console.log("Quantidade de dígitos:", cep.length);
+
+  if (cep.length !== 8) {
+    if (mensagemCep) {
+      mensagemCep.textContent = "CEP inválido. Digite os 8 dígitos do CEP.";
+    }
+
+    return;
+  }
+
+  if (mensagemCep) {
+    mensagemCep.textContent = "Consultando CEP...";
+  }
+
+  try {
+    const endereco = await buscarCep(cep);
+
+    document.querySelector("#logradouro").value = endereco.logradouro || "";
+
+    document.querySelector("#bairro").value = endereco.bairro || "";
+
+    document.querySelector("#cidade").value = endereco.localidade || "";
+
+    document.querySelector("#uf").value = endereco.uf || "";
+
+    document.querySelector("#complemento").value = endereco.complemento || "";
+
+    if (mensagemCep) {
+      mensagemCep.textContent = "Endereço consultado. Confira os dados.";
+    }
+  } catch (erro) {
+    if (mensagemCep) {
+      mensagemCep.textContent =
+        erro.message || "Não foi possível consultar o CEP.";
+    }
+  }
+}
+
+campoCep?.addEventListener("blur", preencherEnderecoPeloCep);
 
 // Carrega os agendamentos salvos apenas uma vez.
 const agendaSalva = lerJSON("agendamentos", []);
@@ -41,10 +163,61 @@ if (formulario) {
   }
 }
 
+// Mostra o endereço somente se o serviço permitir
+// atendimento domiciliar e o checkbox estiver marcado.
+function atualizarEndereco() {
+  const servico = estado.servicos.find(
+    (item) => item.id === campoServico?.value,
+  );
+
+  const permiteDomiciliar = Boolean(servico?.domiciliar);
+  const mostrarEndereco =
+    permiteDomiciliar && Boolean(campoDomiciliar?.checked);
+
+  if (campoDomiciliar) {
+    campoDomiciliar.disabled = !permiteDomiciliar;
+
+    if (!permiteDomiciliar) {
+      campoDomiciliar.checked = false;
+    }
+  }
+
+  if (grupoEndereco) {
+    grupoEndereco.hidden = !mostrarEndereco;
+  }
+
+  camposEndereco.forEach((campo) => {
+    if (campo) {
+      // Complemento é opcional; os demais campos são obrigatórios
+      // somente durante um atendimento domiciliar.
+      campo.required = mostrarEndereco && campo.id !== "complemento";
+    }
+  });
+}
+
+// Atualiza a exibição quando o serviço ou checkbox mudar.
+campoServico?.addEventListener("change", atualizarEndereco);
+campoDomiciliar?.addEventListener("change", atualizarEndereco);
+
 function atualizarAgenda() {
   if (campoDataAgenda) {
-    renderizarAgendamentos(estado.agenda, campoDataAgenda.value);
+    renderizarAgendamentos(
+      estado.agenda,
+      campoDataAgenda.value,
+      campoStatusAgenda?.value || "Todos",
+    );
   }
+}
+
+function alterarStatusAgendamento(protocolo, novoStatus) {
+  estado.agenda = estado.agenda.map((agendamento) =>
+    agendamento.protocolo === protocolo
+      ? { ...agendamento, status: novoStatus }
+      : agendamento,
+  );
+
+  salvarJSON("agendamentos", estado.agenda);
+  atualizarAgenda();
 }
 
 async function carregarServicos() {
@@ -66,6 +239,9 @@ async function carregarServicos() {
 
     renderizarServicos(estado.servicos);
     preencherSelectServicos(estado.servicos);
+
+    // Reavalia o checkbox depois de carregar os serviços.
+    atualizarEndereco();
   } catch (erro) {
     lista.replaceChildren();
 
@@ -87,9 +263,8 @@ async function carregarServicos() {
 }
 
 if (formulario && mensagemFormulario) {
-  formulario.addEventListener("submit", (evento) => {
+  formulario.addEventListener("submit", async (evento) => {
     evento.preventDefault();
-    mensagemFormulario.textContent = "";
 
     const dados = new FormData(formulario);
 
@@ -161,7 +336,7 @@ if (formulario && mensagemFormulario) {
       mensagemFormulario.textContent =
         "O serviço selecionado não permite atendimento domiciliar.";
 
-      formulario.querySelector("#domiciliar").focus();
+      campoDomiciliar?.focus();
       return;
     }
 
@@ -179,6 +354,39 @@ if (formulario && mensagemFormulario) {
       return;
     }
 
+    // Verifica se a data escolhida é feriado.
+    try {
+      const feriados = await obterFeriados(Number(data.slice(0, 4)));
+
+      const feriado = feriados.find((item) => item.date === data);
+
+      if (feriado) {
+        const confirmou = window.confirm(
+          `${feriado.name} é feriado nesta data. Deseja agendar mesmo assim?`,
+        );
+
+        if (!confirmou) {
+          mensagemFormulario.textContent =
+            "Agendamento não salvo. Escolha outra data, se desejar.";
+          formulario.querySelector("#data").focus();
+          return;
+        }
+      }
+    } catch (erro) {
+      console.error("Falha ao consultar feriados:", erro);
+
+      const continuar = window.confirm(
+        "Não foi possível consultar os feriados. Deseja continuar com o agendamento mesmo assim?",
+      );
+
+      if (!continuar) {
+        mensagemFormulario.textContent =
+          "Agendamento não salvo. Tente consultar a data novamente.";
+        formulario.querySelector("#data").focus();
+        return;
+      }
+    }
+
     // Monta o objeto do novo agendamento.
     const agendamento = {
       protocolo: estado.gerarProtocolo(),
@@ -192,6 +400,19 @@ if (formulario && mensagemFormulario) {
       data,
       hora,
       domiciliar,
+
+      cep: domiciliar ? String(dados.get("cep") || "").trim() : "",
+      logradouro: domiciliar
+        ? String(dados.get("logradouro") || "").trim()
+        : "",
+      numero: domiciliar ? String(dados.get("numero") || "").trim() : "",
+      complemento: domiciliar
+        ? String(dados.get("complemento") || "").trim()
+        : "",
+      bairro: domiciliar ? String(dados.get("bairro") || "").trim() : "",
+      cidade: domiciliar ? String(dados.get("cidade") || "").trim() : "",
+      uf: domiciliar ? String(dados.get("uf") || "").trim() : "",
+
       observacoes: String(dados.get("observacoes") || "").trim(),
       status: "Agendado",
     };
@@ -212,6 +433,9 @@ if (formulario && mensagemFormulario) {
     // Limpa o formulário após salvar com sucesso.
     formulario.reset();
 
+    // Esconde o endereço e atualiza o estado do checkbox.
+    atualizarEndereco();
+
     if (campoDataAgenda) {
       campoDataAgenda.value = data;
     }
@@ -224,7 +448,9 @@ if (formulario && mensagemFormulario) {
 
 // Atualiza a agenda quando o usuário escolhe outro dia.
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
+campoStatusAgenda?.addEventListener("change", atualizarAgenda);
 
 // Inicializa a aplicação.
+atualizarEndereco();
 carregarServicos();
 atualizarAgenda();
