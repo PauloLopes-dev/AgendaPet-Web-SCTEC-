@@ -50,6 +50,7 @@ async function obterFeriados(ano) {
 const formulario = document.querySelector(".form");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
 const campoDataAgenda = document.querySelector("#dia");
+const campoStatusAgenda = document.querySelector("#status");
 const campoDataFormulario = document.querySelector("#data");
 campoDataFormulario?.addEventListener("change", async () => {
   const data = campoDataFormulario.value;
@@ -200,8 +201,23 @@ campoDomiciliar?.addEventListener("change", atualizarEndereco);
 
 function atualizarAgenda() {
   if (campoDataAgenda) {
-    renderizarAgendamentos(estado.agenda, campoDataAgenda.value);
+    renderizarAgendamentos(
+      estado.agenda,
+      campoDataAgenda.value,
+      campoStatusAgenda?.value || "Todos",
+    );
   }
+}
+
+function alterarStatusAgendamento(protocolo, novoStatus) {
+  estado.agenda = estado.agenda.map((agendamento) =>
+    agendamento.protocolo === protocolo
+      ? { ...agendamento, status: novoStatus }
+      : agendamento,
+  );
+
+  salvarJSON("agendamentos", estado.agenda);
+  atualizarAgenda();
 }
 
 async function carregarServicos() {
@@ -432,6 +448,7 @@ if (formulario && mensagemFormulario) {
 
 // Atualiza a agenda quando o usuário escolhe outro dia.
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
+campoStatusAgenda?.addEventListener("change", atualizarAgenda);
 
 // Inicializa a aplicação.
 atualizarEndereco();
