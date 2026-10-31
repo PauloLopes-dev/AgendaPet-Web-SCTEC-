@@ -73,6 +73,7 @@ export function renderizarAgendamentos(
   agendamentos,
   dataSelecionada,
   statusSelecionado = "Todos",
+  termoBusca = "",
 ) {
   const lista = document.querySelector("#lista-agendamentos");
   const mensagemVazia = document.querySelector(".vazio");
@@ -85,15 +86,35 @@ export function renderizarAgendamentos(
 
   lista.replaceChildren();
 
+  const textoBusca = termoBusca.trim().toLocaleLowerCase("pt-BR");
+
   const doDia = agendamentos
     .filter((agendamento) => agendamento.data === dataSelecionada)
     .filter(
       (agendamento) =>
         statusSelecionado === "Todos" ||
         agendamento.status === statusSelecionado,
-    );
+    )
+    .filter((agendamento) => {
+      const tutor = agendamento.tutor.toLocaleLowerCase("pt-BR");
+      const pet = agendamento.pet.toLocaleLowerCase("pt-BR");
+
+      return tutor.includes(textoBusca) || pet.includes(textoBusca);
+    });
 
   mensagemVazia.hidden = doDia.length > 0;
+
+  if (doDia.length === 0) {
+    if (termoBusca.trim()) {
+      mensagemVazia.textContent =
+        "Nenhum agendamento encontrado para essa busca.";
+    } else if (statusSelecionado !== "Todos") {
+      mensagemVazia.textContent = `Nenhum agendamento com status "${statusSelecionado}" neste dia.`;
+    } else {
+      mensagemVazia.textContent =
+        "Nenhum agendamento para este dia. Use o formulário para criar o primeiro.";
+    }
+  }
 
   contador.textContent = `${doDia.length} agendamento${
     doDia.length === 1 ? "" : "s"
@@ -103,7 +124,13 @@ export function renderizarAgendamentos(
     .sort((a, b) => a.hora.localeCompare(b.hora))
     .forEach((agendamento) => {
       const item = document.createElement("article");
-      item.className = "servico";
+      item.classList.add("servico", "agendamento-item");
+
+      item.tabIndex = 0;
+      item.setAttribute(
+        "aria-label",
+        `Agendamento de ${agendamento.pet}, tutor ${agendamento.tutor}`,
+      );
 
       // Hora + nome do pet
       const titulo = document.createElement("h3");
@@ -124,13 +151,19 @@ export function renderizarAgendamentos(
       const botaoConcluir = document.createElement("button");
       botaoConcluir.type = "button";
       botaoConcluir.textContent = "Concluir";
-      botaoConcluir.classList.add("botao-concluir");
+      botaoConcluir.classList.add(
+        "botao",
+        "botao--pequeno",
+        "botao--principal",
+      );
+      botaoConcluir.dataset.acao = "concluir";
       botaoConcluir.dataset.protocolo = agendamento.protocolo;
 
       const botaoCancelar = document.createElement("button");
       botaoCancelar.type = "button";
       botaoCancelar.textContent = "Cancelar";
-      botaoCancelar.classList.add("botao-cancelar");
+      botaoCancelar.classList.add("botao", "botao--pequeno", "botao--perigo");
+      botaoCancelar.dataset.acao = "cancelar";
       botaoCancelar.dataset.protocolo = agendamento.protocolo;
 
       acoes.append(botaoConcluir, botaoCancelar);

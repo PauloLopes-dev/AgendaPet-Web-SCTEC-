@@ -1,11 +1,17 @@
 import { buscarServicos, buscarCep, buscarFeriados } from "./api.js";
+
 import {
   renderizarServicos,
   preencherSelectServicos,
   renderizarAgendamentos,
 } from "./ui.js";
+
 import { lerJSON, salvarJSON } from "./storage.js";
 import { criarGeradorProtocolo } from "./dominio/agendamento.js";
+
+// -----------------------------------------------------------------------------
+// 1. DATA E FERIADOS
+// -----------------------------------------------------------------------------
 
 function hojeISO() {
   const agora = new Date();
@@ -22,7 +28,6 @@ async function obterFeriados(ano) {
   const chave = `feriados-${ano}`;
   const cache = lerJSON(chave, null);
 
-  // Reutiliza o cache se ainda estiver válido.
   if (
     cache &&
     Array.isArray(cache.dados) &&
@@ -31,14 +36,12 @@ async function obterFeriados(ano) {
     return cache.dados;
   }
 
-  // Se não houver cache válido, consulta a API.
   const feriados = await buscarFeriados(ano);
 
   if (!Array.isArray(feriados)) {
     throw new Error("A API não retornou uma lista válida de feriados.");
   }
 
-  // Salva a lista e a data da consulta no localStorage.
   salvarJSON(chave, {
     dados: feriados,
     consultadoEm: Date.now(),
@@ -47,40 +50,27 @@ async function obterFeriados(ano) {
   return feriados;
 }
 
+// -----------------------------------------------------------------------------
+// 2. ELEMENTOS DO HTML
+// -----------------------------------------------------------------------------
+
 const formulario = document.querySelector(".form");
+const campoTutor = document.querySelector("#tutor");
 const mensagemFormulario = document.querySelector("#mensagem-formulario");
+
 const campoDataAgenda = document.querySelector("#dia");
 const campoStatusAgenda = document.querySelector("#status");
+const campoBusca = document.querySelector("#busca");
 const campoDataFormulario = document.querySelector("#data");
-campoDataFormulario?.addEventListener("change", async () => {
-  const data = campoDataFormulario.value;
 
-  mensagemFormulario.textContent = "";
+const listaAgendamentos = document.querySelector("#lista-agendamentos");
 
-  if (!data) {
-    return;
-  }
-
-  try {
-    const feriados = await obterFeriados(Number(data.slice(0, 4)));
-
-    const feriado = feriados.find((item) => item.date === data);
-
-    if (feriado) {
-      mensagemFormulario.textContent = `${feriado.name} é feriado nesta data. Ao salvar, será necessário confirmar o agendamento.`;
-    }
-  } catch (erro) {
-    console.error("Falha ao consultar feriados:", erro);
-
-    mensagemFormulario.textContent =
-      "Não foi possível consultar os feriados. Você poderá tentar continuar com o agendamento.";
-  }
-});
-
-// Campos relacionados ao atendimento domiciliar.
 const campoServico = document.querySelector("#servico");
 const campoDomiciliar = document.querySelector("#domiciliar");
 const grupoEndereco = document.querySelector("#grupo-endereco");
+
+const campoCep = document.querySelector("#cep");
+const mensagemCep = document.querySelector("#mensagem-cep");
 
 const camposEndereco = [
   "cep",
@@ -92,17 +82,72 @@ const camposEndereco = [
   "uf",
 ].map((id) => document.querySelector(`#${id}`));
 
-const campoCep = document.querySelector("#cep");
-const mensagemCep = document.querySelector("#mensagem-cep");
+// -----------------------------------------------------------------------------
+// 3. ESTADO E ARMAZENAMENTO
+// -----------------------------------------------------------------------------
+
+const agendaSalva = lerJSON("agendamentos", []);
+
+const estado = {
+  servicos: [],
+  agenda: agendaSalva,
+  gerarProtocolo: criarGeradorProtocolo(agendaSalva.length),
+};
+
+// -----------------------------------------------------------------------------
+// 4. CONFIGURAÇÃO INICIAL DAS DATAS
+// -----------------------------------------------------------------------------
+
+if (campoDataAgenda) {
+  campoDataAgenda.value = hojeISO();
+}
+
+if (campoDataFormulario) {
+  campoDataFormulario.min = hojeISO();
+}
+
+// -----------------------------------------------------------------------------
+// 5. AVISO DE FERIADOS AO ESCOLHER UMA DATA
+// -----------------------------------------------------------------------------
+
+campoDataFormulario?.addEventListener("change", async () => {
+  const data = campoDataFormulario.value;
+
+  if (mensagemFormulario) {
+    mensagemFormulario.textContent = "";
+  }
+
+  if (!data) return;
+
+  try {
+    const feriados = await obterFeriados(Number(data.slice(0, 4)));
+
+    const feriado = feriados.find((item) => item.date === data);
+
+    if (feriado && mensagemFormulario) {
+      mensagemFormulario.textContent =
+        `${feriado.name} é feriado nesta data. ` +
+        "Ao salvar, será necessário confirmar o agendamento.";
+    }
+  } catch (erro) {
+    console.error("Falha ao consultar feriados:", erro);
+
+    if (mensagemFormulario) {
+      mensagemFormulario.textContent =
+        "Não foi possível consultar os feriados. " +
+        "Você poderá tentar continuar com o agendamento.";
+    }
+  }
+});
+
+// -----------------------------------------------------------------------------
+// 6. CONSULTA DE CEP
+// -----------------------------------------------------------------------------
 
 async function preencherEnderecoPeloCep() {
   if (!campoCep) return;
 
   const cep = campoCep.value.replace(/\D/g, "");
-
-  console.log("CEP digitado:", campoCep.value);
-  console.log("CEP limpo:", cep);
-  console.log("Quantidade de dígitos:", cep.length);
 
   if (cep.length !== 8) {
     if (mensagemCep) {
@@ -142,35 +187,17 @@ async function preencherEnderecoPeloCep() {
 
 campoCep?.addEventListener("blur", preencherEnderecoPeloCep);
 
-// Carrega os agendamentos salvos apenas uma vez.
-const agendaSalva = lerJSON("agendamentos", []);
+// -----------------------------------------------------------------------------
+// 7. ATENDIMENTO DOMICILIAR
+// -----------------------------------------------------------------------------
 
-const estado = {
-  servicos: [],
-  agenda: agendaSalva,
-  gerarProtocolo: criarGeradorProtocolo(agendaSalva.length),
-};
-
-if (campoDataAgenda) {
-  campoDataAgenda.value = hojeISO();
-}
-
-if (formulario) {
-  const campoData = formulario.querySelector("#data");
-
-  if (campoData) {
-    campoData.min = hojeISO();
-  }
-}
-
-// Mostra o endereço somente se o serviço permitir
-// atendimento domiciliar e o checkbox estiver marcado.
 function atualizarEndereco() {
   const servico = estado.servicos.find(
     (item) => item.id === campoServico?.value,
   );
 
   const permiteDomiciliar = Boolean(servico?.domiciliar);
+
   const mostrarEndereco =
     permiteDomiciliar && Boolean(campoDomiciliar?.checked);
 
@@ -188,26 +215,71 @@ function atualizarEndereco() {
 
   camposEndereco.forEach((campo) => {
     if (campo) {
-      // Complemento é opcional; os demais campos são obrigatórios
-      // somente durante um atendimento domiciliar.
       campo.required = mostrarEndereco && campo.id !== "complemento";
     }
   });
 }
 
-// Atualiza a exibição quando o serviço ou checkbox mudar.
 campoServico?.addEventListener("change", atualizarEndereco);
 campoDomiciliar?.addEventListener("change", atualizarEndereco);
 
+// -----------------------------------------------------------------------------
+// 8. ATUALIZAÇÃO DA AGENDA
+// -----------------------------------------------------------------------------
+
 function atualizarAgenda() {
-  if (campoDataAgenda) {
-    renderizarAgendamentos(
-      estado.agenda,
-      campoDataAgenda.value,
-      campoStatusAgenda?.value || "Todos",
-    );
-  }
+  if (!campoDataAgenda) return;
+
+  renderizarAgendamentos(
+    estado.agenda,
+    campoDataAgenda.value,
+    campoStatusAgenda?.value || "Todos",
+    campoBusca?.value || "",
+  );
 }
+
+campoDataAgenda?.addEventListener("change", atualizarAgenda);
+campoStatusAgenda?.addEventListener("change", atualizarAgenda);
+campoBusca?.addEventListener("input", atualizarAgenda);
+
+document.addEventListener("keydown", (evento) => {
+  if (
+    evento.key.toLowerCase() === "n" &&
+    !evento.ctrlKey &&
+    !evento.altKey &&
+    !evento.metaKey &&
+    !["INPUT", "TEXTAREA", "SELECT"].includes(evento.target.tagName)
+  ) {
+    evento.preventDefault();
+    evento.stopPropagation();
+    campoTutor?.focus();
+    return;
+  }
+
+  if (
+    evento.key === "/" &&
+    !evento.ctrlKey &&
+    !evento.altKey &&
+    !evento.metaKey &&
+    !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)
+  ) {
+    evento.preventDefault();
+    campoBusca?.focus();
+    return;
+  }
+
+  if (evento.key === "Escape") {
+    if (campoBusca?.value) {
+      evento.preventDefault();
+      campoBusca.value = "";
+      atualizarAgenda();
+    }
+  }
+});
+
+// -----------------------------------------------------------------------------
+// 9. ALTERAÇÃO DO STATUS DOS AGENDAMENTOS
+// -----------------------------------------------------------------------------
 
 function alterarStatusAgendamento(protocolo, novoStatus) {
   estado.agenda = estado.agenda.map((agendamento) =>
@@ -216,9 +288,72 @@ function alterarStatusAgendamento(protocolo, novoStatus) {
       : agendamento,
   );
 
-  salvarJSON("agendamentos", estado.agenda);
+  const salvou = salvarJSON("agendamentos", estado.agenda);
+
+  if (!salvou) {
+    console.error("Falha ao salvar o novo status.");
+    atualizarAgenda();
+    return;
+  }
+
   atualizarAgenda();
 }
+
+// Um único ouvinte controla os dois botões da lista.
+listaAgendamentos?.addEventListener("click", (evento) => {
+  if (evento.target.closest("button")) return;
+  const botao = evento.target.closest("button");
+
+  if (!botao || !listaAgendamentos.contains(botao)) return;
+
+  const protocolo = botao.dataset.protocolo;
+  const acao = botao.dataset.acao;
+
+  if (!protocolo) return;
+
+  if (acao === "concluir") {
+    alterarStatusAgendamento(protocolo, "Concluído");
+  }
+
+  if (acao === "cancelar") {
+    alterarStatusAgendamento(protocolo, "Cancelado");
+  }
+});
+
+listaAgendamentos?.addEventListener("click", (evento) => {
+  const item = evento.target.closest(".agendamento-item");
+
+  if (!item || !listaAgendamentos.contains(item)) return;
+
+  listaAgendamentos
+    .querySelectorAll(".agendamento-item.selecionado")
+    .forEach((selecionado) => {
+      selecionado.classList.remove("selecionado");
+    });
+
+  item.classList.add("selecionado");
+});
+
+listaAgendamentos?.addEventListener("keydown", (evento) => {
+  if (
+    evento.target.classList.contains("agendamento-item") &&
+    (evento.key === "Enter" || evento.key === " ")
+  ) {
+    evento.preventDefault();
+
+    listaAgendamentos
+      .querySelectorAll(".agendamento-item.selecionado")
+      .forEach((selecionado) => {
+        selecionado.classList.remove("selecionado");
+      });
+
+    evento.target.classList.add("selecionado");
+  }
+});
+
+// -----------------------------------------------------------------------------
+// 10. CARREGAMENTO DOS SERVIÇOS
+// -----------------------------------------------------------------------------
 
 async function carregarServicos() {
   const lista = document.querySelector("#lista-servicos");
@@ -240,7 +375,6 @@ async function carregarServicos() {
     renderizarServicos(estado.servicos);
     preencherSelectServicos(estado.servicos);
 
-    // Reavalia o checkbox depois de carregar os serviços.
     atualizarEndereco();
   } catch (erro) {
     lista.replaceChildren();
@@ -256,11 +390,16 @@ async function carregarServicos() {
     tentarNovamente.addEventListener("click", carregarServicos);
 
     lista.append(aviso, tentarNovamente);
+
     console.error(erro);
   } finally {
     lista.setAttribute("aria-busy", "false");
   }
 }
+
+// -----------------------------------------------------------------------------
+// 11. CADASTRO DE AGENDAMENTOS
+// -----------------------------------------------------------------------------
 
 if (formulario && mensagemFormulario) {
   formulario.addEventListener("submit", async (evento) => {
@@ -270,38 +409,38 @@ if (formulario && mensagemFormulario) {
 
     const telefone = String(dados.get("telefone") || "");
     const digitosTelefone = telefone.replace(/\D/g, "");
+
     const data = String(dados.get("data") || "");
     const hora = String(dados.get("horario") || "");
     const servicoId = String(dados.get("servico") || "");
 
     const servico = estado.servicos.find((item) => item.id === servicoId);
 
-    // Valida os campos na ordem em que aparecem no formulário.
+    // Validação dos campos.
     const campos = Array.from(
       formulario.querySelectorAll("input, select, textarea"),
     );
 
     for (const campo of campos) {
-      // Telefone: exige DDD e 10 ou 11 dígitos.
       if (
         campo.id === "telefone" &&
         campo.value.trim() !== "" &&
         (digitosTelefone.length < 10 || digitosTelefone.length > 11)
       ) {
         mensagemFormulario.textContent = "Informe um telefone válido com DDD.";
+
         campo.focus();
         return;
       }
 
-      // Data: não permite agendamentos no passado.
       if (campo.id === "data" && campo.value && campo.value < hojeISO()) {
         mensagemFormulario.textContent =
           "A data do agendamento não pode estar no passado.";
+
         campo.focus();
         return;
       }
 
-      // Horário: respeita o funcionamento da loja.
       if (
         campo.id === "horario" &&
         campo.value &&
@@ -309,27 +448,28 @@ if (formulario && mensagemFormulario) {
       ) {
         mensagemFormulario.textContent =
           "Escolha um horário entre 08:00 e 17:30.";
+
         campo.focus();
         return;
       }
 
-      // Serviço: verifica se a opção selecionada existe.
       if (campo.id === "servico" && campo.value && !servico) {
         mensagemFormulario.textContent = "Selecione um serviço válido.";
+
         campo.focus();
         return;
       }
 
-      // Verifica campos obrigatórios e regras HTML.
       if (!campo.checkValidity()) {
         mensagemFormulario.textContent =
           "Preencha todos os campos obrigatórios corretamente.";
+
         campo.focus();
         return;
       }
     }
 
-    // Verifica as regras de atendimento domiciliar.
+    // Validação do atendimento domiciliar.
     const domiciliar = dados.get("domiciliar") === "on";
 
     if (domiciliar && (!servico || !servico.domiciliar)) {
@@ -340,7 +480,7 @@ if (formulario && mensagemFormulario) {
       return;
     }
 
-    // Impede dois agendamentos no mesmo dia e horário.
+    // Verificação de conflito de horário.
     const conflito = estado.agenda.some(
       (item) =>
         item.data === data && item.hora === hora && item.status !== "Cancelado",
@@ -354,7 +494,7 @@ if (formulario && mensagemFormulario) {
       return;
     }
 
-    // Verifica se a data escolhida é feriado.
+    // Consulta de feriados.
     try {
       const feriados = await obterFeriados(Number(data.slice(0, 4)));
 
@@ -368,6 +508,7 @@ if (formulario && mensagemFormulario) {
         if (!confirmou) {
           mensagemFormulario.textContent =
             "Agendamento não salvo. Escolha outra data, se desejar.";
+
           formulario.querySelector("#data").focus();
           return;
         }
@@ -376,18 +517,20 @@ if (formulario && mensagemFormulario) {
       console.error("Falha ao consultar feriados:", erro);
 
       const continuar = window.confirm(
-        "Não foi possível consultar os feriados. Deseja continuar com o agendamento mesmo assim?",
+        "Não foi possível consultar os feriados. " +
+          "Deseja continuar com o agendamento mesmo assim?",
       );
 
       if (!continuar) {
         mensagemFormulario.textContent =
           "Agendamento não salvo. Tente consultar a data novamente.";
+
         formulario.querySelector("#data").focus();
         return;
       }
     }
 
-    // Monta o objeto do novo agendamento.
+    // Montagem do objeto.
     const agendamento = {
       protocolo: estado.gerarProtocolo(),
       tutor: String(dados.get("tutor")).trim(),
@@ -417,23 +560,20 @@ if (formulario && mensagemFormulario) {
       status: "Agendado",
     };
 
-    // Adiciona temporariamente à agenda.
+    // Salvar o agendamento.
     estado.agenda.push(agendamento);
 
-    // Salva no armazenamento do navegador.
     if (!salvarJSON("agendamentos", estado.agenda)) {
       estado.agenda.pop();
 
       mensagemFormulario.textContent =
-        "Não foi possível salvar. Verifique o armazenamento do navegador e tente novamente.";
+        "Não foi possível salvar. Verifique o armazenamento do navegador.";
 
       return;
     }
 
-    // Limpa o formulário após salvar com sucesso.
+    // Limpeza do formulário.
     formulario.reset();
-
-    // Esconde o endereço e atualiza o estado do checkbox.
     atualizarEndereco();
 
     if (campoDataAgenda) {
@@ -446,11 +586,10 @@ if (formulario && mensagemFormulario) {
   });
 }
 
-// Atualiza a agenda quando o usuário escolhe outro dia.
-campoDataAgenda?.addEventListener("change", atualizarAgenda);
-campoStatusAgenda?.addEventListener("change", atualizarAgenda);
+// -----------------------------------------------------------------------------
+// 12. INICIALIZAÇÃO
+// -----------------------------------------------------------------------------
 
-// Inicializa a aplicação.
 atualizarEndereco();
 carregarServicos();
 atualizarAgenda();
