@@ -282,6 +282,15 @@ document.addEventListener("keydown", (evento) => {
 // -----------------------------------------------------------------------------
 
 function alterarStatusAgendamento(protocolo, novoStatus) {
+  const agendamentoAtual = estado.agenda.find(
+    (agendamento) => agendamento.protocolo === protocolo,
+  );
+
+  // Somente agendamentos podem mudar de status.
+  if (!agendamentoAtual || agendamentoAtual.status !== "Agendado") {
+    return;
+  }
+
   estado.agenda = estado.agenda.map((agendamento) =>
     agendamento.protocolo === protocolo
       ? { ...agendamento, status: novoStatus }
@@ -301,7 +310,6 @@ function alterarStatusAgendamento(protocolo, novoStatus) {
 
 // Um único ouvinte controla os dois botões da lista.
 listaAgendamentos?.addEventListener("click", (evento) => {
-  if (evento.target.closest("button")) return;
   const botao = evento.target.closest("button");
 
   if (!botao || !listaAgendamentos.contains(botao)) return;

@@ -148,25 +148,27 @@ export function renderizarAgendamentos(
       const acoes = document.createElement("div");
       acoes.classList.add("acoes-agendamento");
 
-      const botaoConcluir = document.createElement("button");
-      botaoConcluir.type = "button";
-      botaoConcluir.textContent = "Concluir";
-      botaoConcluir.classList.add(
-        "botao",
-        "botao--pequeno",
-        "botao--principal",
-      );
-      botaoConcluir.dataset.acao = "concluir";
-      botaoConcluir.dataset.protocolo = agendamento.protocolo;
+      if (agendamento.status === "Agendado") {
+        const botaoConcluir = document.createElement("button");
+        botaoConcluir.type = "button";
+        botaoConcluir.textContent = "Concluir";
+        botaoConcluir.classList.add(
+          "botao",
+          "botao--pequeno",
+          "botao--principal",
+        );
+        botaoConcluir.dataset.acao = "concluir";
+        botaoConcluir.dataset.protocolo = agendamento.protocolo;
 
-      const botaoCancelar = document.createElement("button");
-      botaoCancelar.type = "button";
-      botaoCancelar.textContent = "Cancelar";
-      botaoCancelar.classList.add("botao", "botao--pequeno", "botao--perigo");
-      botaoCancelar.dataset.acao = "cancelar";
-      botaoCancelar.dataset.protocolo = agendamento.protocolo;
+        const botaoCancelar = document.createElement("button");
+        botaoCancelar.type = "button";
+        botaoCancelar.textContent = "Cancelar";
+        botaoCancelar.classList.add("botao", "botao--pequeno", "botao--perigo");
+        botaoCancelar.dataset.acao = "cancelar";
+        botaoCancelar.dataset.protocolo = agendamento.protocolo;
 
-      acoes.append(botaoConcluir, botaoCancelar);
+        acoes.append(botaoConcluir, botaoCancelar);
+      }
 
       // Ordem: hora/pet → tutor → status → ações
       item.append(titulo, tutor, status, acoes);
