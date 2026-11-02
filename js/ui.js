@@ -68,7 +68,13 @@ export function preencherSelectServicos(servicos) {
     select.append(opcao);
   });
 }
-export function renderizarAgendamentos(agendamentos, dataSelecionada) {
+
+export function renderizarAgendamentos(
+  agendamentos,
+  dataSelecionada,
+  statusSelecionado = "Todos",
+  termoBusca = "",
+) {
   const lista = document.querySelector("#lista-agendamentos");
   const mensagemVazia = document.querySelector(".vazio");
   const contador = document.querySelector(".contador");
@@ -80,31 +86,115 @@ export function renderizarAgendamentos(agendamentos, dataSelecionada) {
 
   lista.replaceChildren();
 
-  const doDia = agendamentos.filter(
-    (agendamento) =>
-      agendamento.data === dataSelecionada &&
-      agendamento.status !== "Cancelado",
-  );
+  const textoBusca = termoBusca.trim().toLocaleLowerCase("pt-BR");
+
+  const doDia = agendamentos
+    .filter((agendamento) => agendamento.data === dataSelecionada)
+    .filter(
+      (agendamento) =>
+        statusSelecionado === "Todos" ||
+        agendamento.status === statusSelecionado,
+    )
+    .filter((agendamento) => {
+      const tutor = agendamento.tutor.toLocaleLowerCase("pt-BR");
+      const pet = agendamento.pet.toLocaleLowerCase("pt-BR");
+
+      return tutor.includes(textoBusca) || pet.includes(textoBusca);
+    });
 
   mensagemVazia.hidden = doDia.length > 0;
-  contador.textContent = `${doDia.length} agendamento${doDia.length === 1 ? "" : "s"}`;
+
+  if (doDia.length === 0) {
+    if (termoBusca.trim()) {
+      mensagemVazia.textContent =
+        "Nenhum agendamento encontrado para essa busca.";
+    } else if (statusSelecionado !== "Todos") {
+      mensagemVazia.textContent = `Nenhum agendamento com status "${statusSelecionado}" neste dia.`;
+    } else {
+      mensagemVazia.textContent =
+        "Nenhum agendamento para este dia. Use o formulário para criar o primeiro.";
+    }
+  }
+
+  contador.textContent = `${doDia.length} agendamento${
+    doDia.length === 1 ? "" : "s"
+  }`;
 
   doDia
     .sort((a, b) => a.hora.localeCompare(b.hora))
     .forEach((agendamento) => {
       const item = document.createElement("article");
-      item.className = "servico";
+      item.classList.add("servico", "agendamento-item");
 
+      item.tabIndex = 0;
+      item.setAttribute(
+        "aria-label",
+        `Agendamento de ${agendamento.pet}, tutor ${agendamento.tutor}`,
+      );
+
+      // Hora + nome do pet
       const titulo = document.createElement("h3");
       titulo.textContent = `${agendamento.hora} — ${agendamento.pet}`;
 
-      const detalhes = document.createElement("p");
-      detalhes.textContent = `Tutor: ${agendamento.tutor} | Serviço: ${agendamento.servicoNome}`;
+      // Nome do tutor
+      const tutor = document.createElement("p");
+      tutor.textContent = `Tutor: ${agendamento.tutor}`;
 
+      // Status
       const status = document.createElement("p");
       status.textContent = `Status: ${agendamento.status}`;
 
-      item.append(titulo, detalhes, status);
+      // Espaço para os botões de ação
+      const acoes = document.createElement("div");
+      acoes.classList.add("acoes-agendamento");
+
+      if (agendamento.status === "Agendado") {
+        const botaoConcluir = document.createElement("button");
+        botaoConcluir.type = "button";
+        botaoConcluir.textContent = "Concluir";
+        botaoConcluir.classList.add(
+          "botao",
+          "botao--pequeno",
+          "botao--principal",
+        );
+        botaoConcluir.dataset.acao = "concluir";
+        botaoConcluir.dataset.protocolo = agendamento.protocolo;
+
+        const botaoCancelar = document.createElement("button");
+        botaoCancelar.type = "button";
+        botaoCancelar.textContent = "Cancelar";
+        botaoCancelar.classList.add("botao", "botao--pequeno", "botao--perigo");
+        botaoCancelar.dataset.acao = "cancelar";
+        botaoCancelar.dataset.protocolo = agendamento.protocolo;
+
+        acoes.append(botaoConcluir, botaoCancelar);
+      }
+
+      // Ordem: hora/pet → tutor → status → ações
+      item.append(titulo, tutor, status, acoes);
+
+      // Endereço somente para atendimento domiciliar
+      if (agendamento.domiciliar) {
+        const endereco = document.createElement("p");
+
+        const partesEndereco = [
+          agendamento.logradouro,
+          agendamento.numero,
+          agendamento.complemento,
+          agendamento.bairro,
+          agendamento.cidade,
+          agendamento.uf,
+          agendamento.cep,
+        ].filter((parte) => parte && String(parte).trim() !== "");
+
+        endereco.textContent = partesEndereco.length
+          ? `Endereço: ${partesEndereco.join(", ")}`
+          : "Endereço domiciliar não informado.";
+
+        item.append(endereco);
+      }
+
+      // Adiciona cada agendamento somente uma vez
       lista.append(item);
     });
 }

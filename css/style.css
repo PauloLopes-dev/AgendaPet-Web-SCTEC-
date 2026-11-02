@@ -452,6 +452,13 @@ a {
   gap: 8px;
 }
 
+.acoes-agendamento {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 /* 7. SERVIÇOS ------------------------------------------------------------------ */
 .servicos {
   display: flex;
@@ -487,6 +494,27 @@ a {
 }
 
 /* 8. AGENDA --------------------------------------------------------------------- */
+
+.lista-agendamentos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agendamento-item {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.agendamento-item:hover {
+  background: var(--superficie);
+  box-shadow: 0 0 0 2px var(--primaria);
+}
+
+.agendamento-item.selecionado {
+  background: var(--superficie);
+  box-shadow: 0 0 0 2px var(--primaria);
+}
+
 .filtros {
   display: flex;
   flex-wrap: wrap;
