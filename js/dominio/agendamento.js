@@ -1,47 +1,180 @@
+// -----------------------------------------------------------------------------
+// CONFIGURAÇÕES DO AGENDAPET
+// -----------------------------------------------------------------------------
+
 export const CONFIG = Object.freeze({
   abertura: "08:00",
   fechamento: "18:00",
-  passoMin: 30 /* TODO: taxas,
-cidade da loja... */,
+  passoMin: 30,
+
+  // Ajustar conforme as regras da Patinhas & Cia.
+  cidadeLoja: "Joinville",
+  taxaDeslocamento: 20,
 });
+
+// -----------------------------------------------------------------------------
+// FUNÇÃO AUXILIAR: NORMALIZAÇÃO DE CIDADES
+// -----------------------------------------------------------------------------
+
+function normalizarCidade(cidade = "") {
+  return cidade
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+// -----------------------------------------------------------------------------
+// CLASSE AGENDAMENTO
+// -----------------------------------------------------------------------------
+
 export class Agendamento {
   constructor({
     protocolo,
     tutor,
-    /* TODO: demais campos */ servico,
+    telefone,
+    pet,
+    especie,
+    servicoId,
+    servicoNome,
+    preco,
     data,
     hora,
+    domiciliar = false,
+    cep = "",
+    logradouro = "",
+    numero = "",
+    complemento = "",
+    bairro = "",
+    cidade = "",
+    uf = "",
+    observacoes = "",
     status = "Agendado",
   }) {
     this.protocolo = protocolo;
-    // TODO: guardar os demais campos em this.*
+    this.tutor = tutor;
+    this.telefone = telefone;
+    this.pet = pet;
+    this.especie = especie;
+    this.servicoId = servicoId;
+    this.servicoNome = servicoNome;
+    this.preco = preco;
+    this.data = data;
+    this.hora = hora;
+    this.domiciliar = domiciliar;
+    this.cep = cep;
+    this.logradouro = logradouro;
+    this.numero = numero;
+    this.complemento = complemento;
+    this.bairro = bairro;
+    this.cidade = cidade;
+    this.uf = uf;
+    this.observacoes = observacoes;
+    this.status = status;
   }
+
+  // Um agendamento só deixa de estar ativo quando é cancelado.
   get ativo() {
-    /* TODO: true quando o status NÃO é "Cancelado" */
+    return this.status !== "Cancelado";
   }
+
+  // Retorna o valor do serviço.
   calcularValor() {
-    return this.servico.preco;
+    return Number(this.preco) || 0;
   }
+
+  // Verifica se dois agendamentos ocupam o mesmo horário.
   conflitaCom(outro) {
-    // TODO: true se os DOIS estão ativos, são de datas/horas iguais e NÃO são o mesmo objeto (this !== outro)
+    return (
+      outro instanceof Agendamento &&
+      this !== outro &&
+      this.ativo &&
+      outro.ativo &&
+      this.data === outro.data &&
+      this.hora === outro.hora
+    );
   }
+
+  // Prepara os dados para armazenamento em JSON.
   paraJSON() {
-    /* TODO: objeto simples; em vez de this.servico, guarde servicoId: this.servico.id */
+    return {
+      protocolo: this.protocolo,
+      tutor: this.tutor,
+      telefone: this.telefone,
+      pet: this.pet,
+      especie: this.especie,
+      servicoId: this.servicoId,
+      servicoNome: this.servicoNome,
+      preco: this.preco,
+      data: this.data,
+      hora: this.hora,
+      domiciliar: this.domiciliar,
+      cep: this.cep,
+      logradouro: this.logradouro,
+      numero: this.numero,
+      complemento: this.complemento,
+      bairro: this.bairro,
+      cidade: this.cidade,
+      uf: this.uf,
+      observacoes: this.observacoes,
+      status: this.status,
+    };
   }
 }
+
+// -----------------------------------------------------------------------------
+// CLASSE AGENDAMENTO DOMICILIAR
+// -----------------------------------------------------------------------------
+
 export class AgendamentoDomiciliar extends Agendamento {
-  constructor({ endereco, ...dados }) {
-    super(dados); // 1) chama o construtor da classe-mãe  2) só depois use this
-    this.endereco = endereco;
+  constructor(dados) {
+    super({
+      ...dados,
+      domiciliar: true,
+    });
+
+    this.endereco = {
+      cep: this.cep,
+      logradouro: this.logradouro,
+      numero: this.numero,
+      complemento: this.complemento,
+      bairro: this.bairro,
+      cidade: this.cidade,
+      uf: this.uf,
+    };
   }
+
   calcularValor() {
     return super.calcularValor() + this.taxaDeslocamento();
   }
+
   taxaDeslocamento() {
-    /* TODO: regra da taxa (compare cidades ignorando acentos/maiúsculas) */
+    const cidadeLoja = normalizarCidade(CONFIG.cidadeLoja);
+    const cidadeAtendimento = normalizarCidade(this.cidade);
+
+    if (!cidadeLoja || cidadeLoja === "preencher") {
+      return 0;
+    }
+
+    if (cidadeLoja === cidadeAtendimento) {
+      return 0;
+    }
+
+    return CONFIG.taxaDeslocamento;
+  }
+
+  paraJSON() {
+    return {
+      ...super.paraJSON(),
+      domiciliar: true,
+    };
   }
 }
-// Fábrica: decide a classe a partir do objeto simples (necessária para restaurar do localStorage)
+
+// -----------------------------------------------------------------------------
+// GERADOR DE PROTOCOLO COM CLOSURE
+// -----------------------------------------------------------------------------
+
 export function criarGeradorProtocolo(ultimo = 0) {
   let contador = ultimo;
 
