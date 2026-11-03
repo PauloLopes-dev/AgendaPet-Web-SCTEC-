@@ -83,6 +83,11 @@ export class Agendamento {
     return Number(this.preco) || 0;
   }
 
+  // Retorna um resumo dos dados do agendamento.
+  resumo() {
+    return `${this.protocolo} - ${this.pet} - ${this.servicoNome} - R$ ${this.calcularValor().toFixed(2)}`;
+  }
+
   // Verifica se dois agendamentos ocupam o mesmo horário.
   conflitaCom(outro) {
     return (
@@ -146,6 +151,11 @@ export class AgendamentoDomiciliar extends Agendamento {
 
   calcularValor() {
     return super.calcularValor() + this.taxaDeslocamento();
+  }
+
+  // Sobrescreve o resumo para identificar o atendimento domiciliar.
+  resumo() {
+    return `${super.resumo()} - Atendimento domiciliar`;
   }
 
   taxaDeslocamento() {
