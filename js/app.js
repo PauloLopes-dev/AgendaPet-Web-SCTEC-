@@ -7,7 +7,14 @@ import {
 } from "./ui.js";
 
 import { lerJSON, salvarJSON } from "./storage.js";
-import { criarGeradorProtocolo } from "./dominio/agendamento.js";
+import {
+  Agendamento,
+  AgendamentoDomiciliar,
+  criarGeradorProtocolo,
+} from "./dominio/agendamento.js";
+
+import { verificarConflito } from "./dominio/regras.js";
+import { fecharDia } from "./dominio/fechamento.js";
 
 // -----------------------------------------------------------------------------
 // 1. DATA E FERIADOS
@@ -236,6 +243,49 @@ function atualizarAgenda() {
     campoStatusAgenda?.value || "Todos",
     campoBusca?.value || "",
   );
+
+  atualizarFechamento();
+}
+
+function atualizarFechamento() {
+  const fechamento = fecharDia(estado.agenda, campoDataAgenda.value);
+
+  const valores = document.querySelectorAll(
+    "#fechamento-do-dia .resumo__valor",
+  );
+
+  const concluidos = estado.agenda.filter(
+    (agendamento) =>
+      agendamento.data === campoDataAgenda.value &&
+      agendamento.status === "Concluído",
+  ).length;
+
+  const agendados = estado.agenda.filter(
+    (agendamento) =>
+      agendamento.data === campoDataAgenda.value &&
+      agendamento.status === "Agendado",
+  ).length;
+
+  const aReceber = estado.agenda
+    .filter(
+      (agendamento) =>
+        agendamento.data === campoDataAgenda.value &&
+        agendamento.status === "Agendado",
+    )
+    .reduce((total, agendamento) => total + Number(agendamento.preco || 0), 0);
+
+  const moeda = (valor) =>
+    Number(valor || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+  valores[0].textContent = fechamento.totalAtendimentos;
+  valores[1].textContent = concluidos;
+  valores[2].textContent = agendados;
+  valores[3].textContent = fechamento.cancelados;
+  valores[4].textContent = moeda(fechamento.faturamento);
+  valores[5].textContent = moeda(aReceber);
 }
 
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
@@ -538,8 +588,8 @@ if (formulario && mensagemFormulario) {
       }
     }
 
-    // Montagem do objeto.
-    const agendamento = {
+    // Montagem dos dados do agendamento.
+    const dadosAgendamento = {
       protocolo: estado.gerarProtocolo(),
       tutor: String(dados.get("tutor")).trim(),
       telefone: telefone.trim(),
@@ -568,6 +618,20 @@ if (formulario && mensagemFormulario) {
       status: "Agendado",
     };
 
+    // Cria uma instância conforme o tipo de atendimento.
+    const agendamento = domiciliar
+      ? new AgendamentoDomiciliar(dadosAgendamento)
+      : new Agendamento(dadosAgendamento);
+
+    console.log("Valor calculado:", agendamento.calcularValor());
+
+    // Verifica se o horário já está ocupado.
+    if (verificarConflito(estado.agenda, agendamento)) {
+      mensagemFormulario.textContent =
+        "Este horário já está ocupado. Escolha outro horário.";
+
+      return;
+    }
     // Salvar o agendamento.
     estado.agenda.push(agendamento);
 

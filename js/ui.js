@@ -144,6 +144,15 @@ export function renderizarAgendamentos(
       const status = document.createElement("p");
       status.textContent = `Status: ${agendamento.status}`;
 
+      // Preço do serviço
+      const preco = document.createElement("p");
+      preco.textContent = `Valor: ${Number(
+        agendamento.preco || 0,
+      ).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })}`;
+
       // Espaço para os botões de ação
       const acoes = document.createElement("div");
       acoes.classList.add("acoes-agendamento");
@@ -171,7 +180,7 @@ export function renderizarAgendamentos(
       }
 
       // Ordem: hora/pet → tutor → status → ações
-      item.append(titulo, tutor, status, acoes);
+      item.append(titulo, tutor, preco, status, acoes);
 
       // Endereço somente para atendimento domiciliar
       if (agendamento.domiciliar) {
