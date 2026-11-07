@@ -272,7 +272,13 @@ function atualizarFechamento() {
         agendamento.data === campoDataAgenda.value &&
         agendamento.status === "Agendado",
     )
-    .reduce((total, agendamento) => total + Number(agendamento.preco || 0), 0);
+    .reduce((total, agendamento) => {
+      const instancia = agendamento.domiciliar
+        ? new AgendamentoDomiciliar(agendamento)
+        : new Agendamento(agendamento);
+
+      return total + instancia.calcularValor();
+    }, 0);
 
   const moeda = (valor) =>
     Number(valor || 0).toLocaleString("pt-BR", {
