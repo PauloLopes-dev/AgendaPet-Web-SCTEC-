@@ -74,6 +74,7 @@ export function renderizarAgendamentos(
   dataSelecionada,
   statusSelecionado = "Todos",
   termoBusca = "",
+  agora = new Date(),
 ) {
   const lista = document.querySelector("#lista-agendamentos");
   const mensagemVazia = document.querySelector(".vazio");
@@ -126,6 +127,19 @@ export function renderizarAgendamentos(
       const item = document.createElement("article");
       item.classList.add("servico", "agendamento-item");
 
+      // Identifica atendimentos atrasados ou próximos.
+      if (agendamento.status === "Agendado") {
+        const dataHora = new Date(`${agendamento.data}T${agendamento.hora}:00`);
+
+        const minutosRestantes = (dataHora - agora) / 60000;
+
+        if (minutosRestantes < 0) {
+          item.classList.add("item--atrasado");
+        } else if (minutosRestantes <= 15) {
+          item.classList.add("item--realce");
+        }
+      }
+
       item.tabIndex = 0;
       item.setAttribute(
         "aria-label",
@@ -143,6 +157,15 @@ export function renderizarAgendamentos(
       // Status
       const status = document.createElement("p");
       status.textContent = `Status: ${agendamento.status}`;
+
+      // Preço do serviço
+      const preco = document.createElement("p");
+      preco.textContent = `Valor: ${Number(
+        agendamento.preco || 0,
+      ).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })}`;
 
       // Espaço para os botões de ação
       const acoes = document.createElement("div");
@@ -171,7 +194,7 @@ export function renderizarAgendamentos(
       }
 
       // Ordem: hora/pet → tutor → status → ações
-      item.append(titulo, tutor, status, acoes);
+      item.append(titulo, tutor, preco, status, acoes);
 
       // Endereço somente para atendimento domiciliar
       if (agendamento.domiciliar) {

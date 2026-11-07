@@ -6,8 +6,16 @@ import {
   renderizarAgendamentos,
 } from "./ui.js";
 
-import { lerJSON, salvarJSON } from "./storage.js";
-import { criarGeradorProtocolo } from "./dominio/agendamento.js";
+import { lerJSON, salvarJSON, limparDados } from "./storage.js";
+
+import {
+  Agendamento,
+  AgendamentoDomiciliar,
+  criarGeradorProtocolo,
+} from "./dominio/agendamento.js";
+
+import { verificarConflito } from "./dominio/regras.js";
+import { fecharDia } from "./dominio/fechamento.js";
 
 // -----------------------------------------------------------------------------
 // 1. DATA E FERIADOS
@@ -65,6 +73,10 @@ const campoDataFormulario = document.querySelector("#data");
 
 const listaAgendamentos = document.querySelector("#lista-agendamentos");
 
+const botaoPausarLembretes = document.querySelector("[data-pausar-lembretes]");
+
+const areaToast = document.querySelector("[data-toast]");
+
 const campoServico = document.querySelector("#servico");
 const campoDomiciliar = document.querySelector("#domiciliar");
 const grupoEndereco = document.querySelector("#grupo-endereco");
@@ -88,6 +100,14 @@ const camposEndereco = [
 
 const agendaSalva = lerJSON("agendamentos", []);
 
+const filtrosSalvos = lerJSON("filtros", {
+  data: hojeISO(),
+  status: "Todos",
+  busca: "",
+});
+
+const temaSalvo = lerJSON("tema", "claro");
+
 const estado = {
   servicos: [],
   agenda: agendaSalva,
@@ -95,11 +115,138 @@ const estado = {
 };
 
 // -----------------------------------------------------------------------------
+// EXPORTAÇÃO DA AGENDA EM JSON
+// -----------------------------------------------------------------------------
+
+const botaoExportar = document.querySelector("[data-exportar]");
+const areaExportacao = document.querySelector("[data-area-exportacao]");
+const campoJson = document.querySelector("#json-exportado");
+
+botaoExportar?.addEventListener("click", () => {
+  const json = JSON.stringify(estado.agenda, null, 2);
+
+  campoJson.value = json;
+  areaExportacao.hidden = false;
+});
+
+// -----------------------------------------------------------------------------
+// COPIAR AGENDA EM JSON
+// -----------------------------------------------------------------------------
+
+const botaoCopiarJson = document.querySelector("[data-copiar-json]");
+
+botaoCopiarJson?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(campoJson.value);
+
+    alert("Agenda copiada com sucesso!");
+  } catch (erro) {
+    console.error("Erro ao copiar JSON:", erro);
+    alert("Não foi possível copiar. Tente novamente.");
+  }
+});
+
+// -----------------------------------------------------------------------------
+// BAIXAR AGENDA EM ARQUIVO JSON
+// -----------------------------------------------------------------------------
+
+const botaoBaixarJson = document.querySelector("[data-baixar-json]");
+
+botaoBaixarJson?.addEventListener("click", () => {
+  const json = campoJson.value;
+
+  const arquivo = new Blob([json], {
+    type: "application/json",
+  });
+
+  const endereco = URL.createObjectURL(arquivo);
+
+  const link = document.createElement("a");
+  link.href = endereco;
+  link.download = "agenda-patinhas-e-cia.json";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(endereco);
+});
+
+// -----------------------------------------------------------------------------
+// LIMPAR DADOS DA AGENDA
+// -----------------------------------------------------------------------------
+
+const botaoLimparDados = document.querySelector("[data-limpar-dados]");
+
+botaoLimparDados?.addEventListener("click", () => {
+  const confirmou = confirm(
+    "Tem certeza de que deseja apagar todos os agendamentos? Essa ação não poderá ser desfeita.",
+  );
+
+  if (!confirmou) return;
+
+  const limpou = limparDados();
+
+  if (!limpou) {
+    alert("Não foi possível limpar os dados.");
+    return;
+  }
+
+  estado.agenda = [];
+  estado.gerarProtocolo = criarGeradorProtocolo(0);
+
+  campoJson.value = "";
+  areaExportacao.hidden = true;
+
+  atualizarAgenda();
+
+  alert("Os dados da agenda foram apagados com sucesso!");
+});
+
+// -----------------------------------------------------------------------------
+// TEMA CLARO E ESCURO
+// -----------------------------------------------------------------------------
+
+const botaoTema = document.querySelector("[data-tema]");
+
+function aplicarTema(tema) {
+  if (tema === "escuro") {
+    document.documentElement.setAttribute("data-tema", "escuro");
+    botaoTema.textContent = "Tema claro";
+  } else {
+    document.documentElement.removeAttribute("data-tema");
+    botaoTema.textContent = "Tema escuro";
+  }
+}
+
+aplicarTema(temaSalvo);
+
+botaoTema?.addEventListener("click", () => {
+  const temaAtual =
+    document.documentElement.getAttribute("data-tema") === "escuro"
+      ? "escuro"
+      : "claro";
+
+  const novoTema = temaAtual === "escuro" ? "claro" : "escuro";
+
+  aplicarTema(novoTema);
+  salvarJSON("tema", novoTema);
+});
+
+// -----------------------------------------------------------------------------
 // 4. CONFIGURAÇÃO INICIAL DAS DATAS
 // -----------------------------------------------------------------------------
 
 if (campoDataAgenda) {
-  campoDataAgenda.value = hojeISO();
+  campoDataAgenda.value = filtrosSalvos.data || hojeISO();
+}
+
+if (campoStatusAgenda) {
+  campoStatusAgenda.value = filtrosSalvos.status || "Todos";
+}
+
+if (campoBusca) {
+  campoBusca.value = filtrosSalvos.busca || "";
 }
 
 if (campoDataFormulario) {
@@ -226,16 +373,184 @@ campoDomiciliar?.addEventListener("change", atualizarEndereco);
 // -----------------------------------------------------------------------------
 // 8. ATUALIZAÇÃO DA AGENDA
 // -----------------------------------------------------------------------------
+// Exibe avisos temporários na tela.
+let temporizadorToast = null;
+
+function mostrarToast(mensagem, tipo = "info") {
+  if (!areaToast) return;
+
+  // Evita manter dois temporizadores ativos.
+  if (temporizadorToast !== null) {
+    clearTimeout(temporizadorToast);
+  }
+
+  areaToast.textContent = mensagem;
+  areaToast.className = `toast toast--${tipo}`;
+  areaToast.hidden = false;
+
+  temporizadorToast = setTimeout(() => {
+    areaToast.hidden = true;
+    temporizadorToast = null;
+  }, 5000);
+}
+
+// Guarda os agendamentos que já geraram um aviso.
+const lembretesNotificados = new Set();
+
+// Verifica se existe atendimento nos próximos 15 minutos.
+function verificarLembretes() {
+  const agora = new Date();
+
+  const hoje = [
+    agora.getFullYear(),
+    String(agora.getMonth() + 1).padStart(2, "0"),
+    String(agora.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  estado.agenda.forEach((agendamento) => {
+    if (agendamento.status !== "Agendado" || agendamento.data !== hoje) {
+      return;
+    }
+
+    const dataHora = new Date(`${agendamento.data}T${agendamento.hora}:00`);
+
+    const minutosRestantes = (dataHora - agora) / 60000;
+
+    if (minutosRestantes < 0 || minutosRestantes > 15) {
+      return;
+    }
+
+    const identificador =
+      agendamento.protocolo ||
+      `${agendamento.data}-${agendamento.hora}-${agendamento.servicoNome}`;
+
+    if (lembretesNotificados.has(identificador)) {
+      return;
+    }
+
+    lembretesNotificados.add(identificador);
+
+    mostrarToast(
+      `Atenção! Atendimento de ${agendamento.hora} começa em até 15 minutos.`,
+      "info",
+    );
+  });
+}
+
+// -----------------------------------------------------------------------------
+// CONTROLE DOS LEMBRETES AUTOMÁTICOS
+// -----------------------------------------------------------------------------
+
+let lembretesAtivos = true;
+let intervaloLembretes = null;
+
+function iniciarLembretes() {
+  if (intervaloLembretes !== null) return;
+
+  lembretesAtivos = true;
+  verificarLembretes();
+
+  intervaloLembretes = setInterval(() => {
+    verificarLembretes();
+    atualizarAgenda();
+  }, 30 * 1000);
+
+  if (botaoPausarLembretes) {
+    botaoPausarLembretes.textContent = "Pausar lembretes";
+    botaoPausarLembretes.setAttribute("aria-pressed", "false");
+  }
+
+  atualizarAgenda();
+}
+
+function pausarLembretes() {
+  if (intervaloLembretes !== null) {
+    clearInterval(intervaloLembretes);
+    intervaloLembretes = null;
+  }
+
+  lembretesAtivos = false;
+
+  if (botaoPausarLembretes) {
+    botaoPausarLembretes.textContent = "Retomar lembretes";
+    botaoPausarLembretes.setAttribute("aria-pressed", "true");
+  }
+}
+
+botaoPausarLembretes?.addEventListener("click", () => {
+  if (lembretesAtivos) {
+    pausarLembretes();
+  } else {
+    iniciarLembretes();
+  }
+});
 
 function atualizarAgenda() {
   if (!campoDataAgenda) return;
 
+  const filtros = {
+    data: campoDataAgenda.value,
+    status: campoStatusAgenda?.value || "Todos",
+    busca: campoBusca?.value || "",
+  };
+
+  salvarJSON("filtros", filtros);
+
   renderizarAgendamentos(
     estado.agenda,
-    campoDataAgenda.value,
-    campoStatusAgenda?.value || "Todos",
-    campoBusca?.value || "",
+    filtros.data,
+    filtros.status,
+    filtros.busca,
   );
+
+  atualizarFechamento();
+}
+
+function atualizarFechamento() {
+  const fechamento = fecharDia(estado.agenda, campoDataAgenda.value);
+
+  const valores = document.querySelectorAll(
+    "#fechamento-do-dia .resumo__valor",
+  );
+
+  const concluidos = estado.agenda.filter(
+    (agendamento) =>
+      agendamento.data === campoDataAgenda.value &&
+      agendamento.status === "Concluído",
+  ).length;
+
+  const agendados = estado.agenda.filter(
+    (agendamento) =>
+      agendamento.data === campoDataAgenda.value &&
+      agendamento.status === "Agendado",
+  ).length;
+
+  const aReceber = estado.agenda
+    .filter(
+      (agendamento) =>
+        agendamento.data === campoDataAgenda.value &&
+        agendamento.status === "Agendado",
+    )
+    .reduce((total, agendamento) => {
+      const instancia = agendamento.domiciliar
+        ? new AgendamentoDomiciliar(agendamento)
+        : new Agendamento(agendamento);
+
+      return total + instancia.calcularValor();
+    }, 0);
+
+  const moeda = (valor) =>
+    Number(valor || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+  valores[0].textContent = fechamento.totalAtendimentos;
+  valores[1].textContent = concluidos;
+  valores[2].textContent = agendados;
+  valores[3].textContent = fechamento.cancelados;
+  valores[4].textContent = moeda(fechamento.faturamento);
+  valores[5].textContent = moeda(aReceber);
 }
 
 campoDataAgenda?.addEventListener("change", atualizarAgenda);
@@ -538,8 +853,8 @@ if (formulario && mensagemFormulario) {
       }
     }
 
-    // Montagem do objeto.
-    const agendamento = {
+    // Montagem dos dados do agendamento.
+    const dadosAgendamento = {
       protocolo: estado.gerarProtocolo(),
       tutor: String(dados.get("tutor")).trim(),
       telefone: telefone.trim(),
@@ -568,6 +883,20 @@ if (formulario && mensagemFormulario) {
       status: "Agendado",
     };
 
+    // Cria uma instância conforme o tipo de atendimento.
+    const agendamento = domiciliar
+      ? new AgendamentoDomiciliar(dadosAgendamento)
+      : new Agendamento(dadosAgendamento);
+
+    console.log("Valor calculado:", agendamento.calcularValor());
+
+    // Verifica se o horário já está ocupado.
+    if (verificarConflito(estado.agenda, agendamento)) {
+      mensagemFormulario.textContent =
+        "Este horário já está ocupado. Escolha outro horário.";
+
+      return;
+    }
     // Salvar o agendamento.
     estado.agenda.push(agendamento);
 
@@ -601,3 +930,4 @@ if (formulario && mensagemFormulario) {
 atualizarEndereco();
 carregarServicos();
 atualizarAgenda();
+iniciarLembretes();
