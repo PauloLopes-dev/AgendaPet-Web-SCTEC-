@@ -32,7 +32,11 @@
           <time class="relogio__hora" data-relogio>21:11</time>
         </p>
 
-        <button class="botao botao--secundario botao--pequeno" type="button">
+        <button
+          class="botao botao--secundario botao--pequeno"
+          type="button"
+          data-pausar-lembretes
+        >
           Pausar lembretes
         </button>
 
@@ -504,6 +508,8 @@
         &amp; Cia é uma empresa fictícia.
       </p>
     </footer>
+
+    <div class="toast" role="status" aria-live="polite" hidden data-toast></div>
 
     <script>
       // Relógio do cabeçalho

@@ -73,6 +73,10 @@ const campoDataFormulario = document.querySelector("#data");
 
 const listaAgendamentos = document.querySelector("#lista-agendamentos");
 
+const botaoPausarLembretes = document.querySelector("[data-pausar-lembretes]");
+
+const areaToast = document.querySelector("[data-toast]");
+
 const campoServico = document.querySelector("#servico");
 const campoDomiciliar = document.querySelector("#domiciliar");
 const grupoEndereco = document.querySelector("#grupo-endereco");
@@ -369,6 +373,117 @@ campoDomiciliar?.addEventListener("change", atualizarEndereco);
 // -----------------------------------------------------------------------------
 // 8. ATUALIZAÇÃO DA AGENDA
 // -----------------------------------------------------------------------------
+// Exibe avisos temporários na tela.
+let temporizadorToast = null;
+
+function mostrarToast(mensagem, tipo = "info") {
+  if (!areaToast) return;
+
+  // Evita manter dois temporizadores ativos.
+  if (temporizadorToast !== null) {
+    clearTimeout(temporizadorToast);
+  }
+
+  areaToast.textContent = mensagem;
+  areaToast.className = `toast toast--${tipo}`;
+  areaToast.hidden = false;
+
+  temporizadorToast = setTimeout(() => {
+    areaToast.hidden = true;
+    temporizadorToast = null;
+  }, 5000);
+}
+
+// Guarda os agendamentos que já geraram um aviso.
+const lembretesNotificados = new Set();
+
+// Verifica se existe atendimento nos próximos 15 minutos.
+function verificarLembretes() {
+  const agora = new Date();
+
+  const hoje = [
+    agora.getFullYear(),
+    String(agora.getMonth() + 1).padStart(2, "0"),
+    String(agora.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  estado.agenda.forEach((agendamento) => {
+    if (agendamento.status !== "Agendado" || agendamento.data !== hoje) {
+      return;
+    }
+
+    const dataHora = new Date(`${agendamento.data}T${agendamento.hora}:00`);
+
+    const minutosRestantes = (dataHora - agora) / 60000;
+
+    if (minutosRestantes < 0 || minutosRestantes > 15) {
+      return;
+    }
+
+    const identificador =
+      agendamento.protocolo ||
+      `${agendamento.data}-${agendamento.hora}-${agendamento.servicoNome}`;
+
+    if (lembretesNotificados.has(identificador)) {
+      return;
+    }
+
+    lembretesNotificados.add(identificador);
+
+    mostrarToast(
+      `Atenção! Atendimento de ${agendamento.hora} começa em até 15 minutos.`,
+      "info",
+    );
+  });
+}
+
+// -----------------------------------------------------------------------------
+// CONTROLE DOS LEMBRETES AUTOMÁTICOS
+// -----------------------------------------------------------------------------
+
+let lembretesAtivos = true;
+let intervaloLembretes = null;
+
+function iniciarLembretes() {
+  if (intervaloLembretes !== null) return;
+
+  lembretesAtivos = true;
+  verificarLembretes();
+
+  intervaloLembretes = setInterval(() => {
+    verificarLembretes();
+    atualizarAgenda();
+  }, 30 * 1000);
+
+  if (botaoPausarLembretes) {
+    botaoPausarLembretes.textContent = "Pausar lembretes";
+    botaoPausarLembretes.setAttribute("aria-pressed", "false");
+  }
+
+  atualizarAgenda();
+}
+
+function pausarLembretes() {
+  if (intervaloLembretes !== null) {
+    clearInterval(intervaloLembretes);
+    intervaloLembretes = null;
+  }
+
+  lembretesAtivos = false;
+
+  if (botaoPausarLembretes) {
+    botaoPausarLembretes.textContent = "Retomar lembretes";
+    botaoPausarLembretes.setAttribute("aria-pressed", "true");
+  }
+}
+
+botaoPausarLembretes?.addEventListener("click", () => {
+  if (lembretesAtivos) {
+    pausarLembretes();
+  } else {
+    iniciarLembretes();
+  }
+});
 
 function atualizarAgenda() {
   if (!campoDataAgenda) return;
@@ -815,3 +930,4 @@ if (formulario && mensagemFormulario) {
 atualizarEndereco();
 carregarServicos();
 atualizarAgenda();
+iniciarLembretes();

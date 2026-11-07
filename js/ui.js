@@ -74,6 +74,7 @@ export function renderizarAgendamentos(
   dataSelecionada,
   statusSelecionado = "Todos",
   termoBusca = "",
+  agora = new Date(),
 ) {
   const lista = document.querySelector("#lista-agendamentos");
   const mensagemVazia = document.querySelector(".vazio");
@@ -125,6 +126,19 @@ export function renderizarAgendamentos(
     .forEach((agendamento) => {
       const item = document.createElement("article");
       item.classList.add("servico", "agendamento-item");
+
+      // Identifica atendimentos atrasados ou próximos.
+      if (agendamento.status === "Agendado") {
+        const dataHora = new Date(`${agendamento.data}T${agendamento.hora}:00`);
+
+        const minutosRestantes = (dataHora - agora) / 60000;
+
+        if (minutosRestantes < 0) {
+          item.classList.add("item--atrasado");
+        } else if (minutosRestantes <= 15) {
+          item.classList.add("item--realce");
+        }
+      }
 
       item.tabIndex = 0;
       item.setAttribute(
