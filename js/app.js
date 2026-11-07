@@ -6,7 +6,8 @@ import {
   renderizarAgendamentos,
 } from "./ui.js";
 
-import { lerJSON, salvarJSON } from "./storage.js";
+import { lerJSON, salvarJSON, limparDados } from "./storage.js";
+
 import {
   Agendamento,
   AgendamentoDomiciliar,
@@ -95,6 +96,14 @@ const camposEndereco = [
 
 const agendaSalva = lerJSON("agendamentos", []);
 
+const filtrosSalvos = lerJSON("filtros", {
+  data: hojeISO(),
+  status: "Todos",
+  busca: "",
+});
+
+const temaSalvo = lerJSON("tema", "claro");
+
 const estado = {
   servicos: [],
   agenda: agendaSalva,
@@ -102,11 +111,138 @@ const estado = {
 };
 
 // -----------------------------------------------------------------------------
+// EXPORTAÇÃO DA AGENDA EM JSON
+// -----------------------------------------------------------------------------
+
+const botaoExportar = document.querySelector("[data-exportar]");
+const areaExportacao = document.querySelector("[data-area-exportacao]");
+const campoJson = document.querySelector("#json-exportado");
+
+botaoExportar?.addEventListener("click", () => {
+  const json = JSON.stringify(estado.agenda, null, 2);
+
+  campoJson.value = json;
+  areaExportacao.hidden = false;
+});
+
+// -----------------------------------------------------------------------------
+// COPIAR AGENDA EM JSON
+// -----------------------------------------------------------------------------
+
+const botaoCopiarJson = document.querySelector("[data-copiar-json]");
+
+botaoCopiarJson?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(campoJson.value);
+
+    alert("Agenda copiada com sucesso!");
+  } catch (erro) {
+    console.error("Erro ao copiar JSON:", erro);
+    alert("Não foi possível copiar. Tente novamente.");
+  }
+});
+
+// -----------------------------------------------------------------------------
+// BAIXAR AGENDA EM ARQUIVO JSON
+// -----------------------------------------------------------------------------
+
+const botaoBaixarJson = document.querySelector("[data-baixar-json]");
+
+botaoBaixarJson?.addEventListener("click", () => {
+  const json = campoJson.value;
+
+  const arquivo = new Blob([json], {
+    type: "application/json",
+  });
+
+  const endereco = URL.createObjectURL(arquivo);
+
+  const link = document.createElement("a");
+  link.href = endereco;
+  link.download = "agenda-patinhas-e-cia.json";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(endereco);
+});
+
+// -----------------------------------------------------------------------------
+// LIMPAR DADOS DA AGENDA
+// -----------------------------------------------------------------------------
+
+const botaoLimparDados = document.querySelector("[data-limpar-dados]");
+
+botaoLimparDados?.addEventListener("click", () => {
+  const confirmou = confirm(
+    "Tem certeza de que deseja apagar todos os agendamentos? Essa ação não poderá ser desfeita.",
+  );
+
+  if (!confirmou) return;
+
+  const limpou = limparDados();
+
+  if (!limpou) {
+    alert("Não foi possível limpar os dados.");
+    return;
+  }
+
+  estado.agenda = [];
+  estado.gerarProtocolo = criarGeradorProtocolo(0);
+
+  campoJson.value = "";
+  areaExportacao.hidden = true;
+
+  atualizarAgenda();
+
+  alert("Os dados da agenda foram apagados com sucesso!");
+});
+
+// -----------------------------------------------------------------------------
+// TEMA CLARO E ESCURO
+// -----------------------------------------------------------------------------
+
+const botaoTema = document.querySelector("[data-tema]");
+
+function aplicarTema(tema) {
+  if (tema === "escuro") {
+    document.documentElement.setAttribute("data-tema", "escuro");
+    botaoTema.textContent = "Tema claro";
+  } else {
+    document.documentElement.removeAttribute("data-tema");
+    botaoTema.textContent = "Tema escuro";
+  }
+}
+
+aplicarTema(temaSalvo);
+
+botaoTema?.addEventListener("click", () => {
+  const temaAtual =
+    document.documentElement.getAttribute("data-tema") === "escuro"
+      ? "escuro"
+      : "claro";
+
+  const novoTema = temaAtual === "escuro" ? "claro" : "escuro";
+
+  aplicarTema(novoTema);
+  salvarJSON("tema", novoTema);
+});
+
+// -----------------------------------------------------------------------------
 // 4. CONFIGURAÇÃO INICIAL DAS DATAS
 // -----------------------------------------------------------------------------
 
 if (campoDataAgenda) {
-  campoDataAgenda.value = hojeISO();
+  campoDataAgenda.value = filtrosSalvos.data || hojeISO();
+}
+
+if (campoStatusAgenda) {
+  campoStatusAgenda.value = filtrosSalvos.status || "Todos";
+}
+
+if (campoBusca) {
+  campoBusca.value = filtrosSalvos.busca || "";
 }
 
 if (campoDataFormulario) {
@@ -237,11 +373,19 @@ campoDomiciliar?.addEventListener("change", atualizarEndereco);
 function atualizarAgenda() {
   if (!campoDataAgenda) return;
 
+  const filtros = {
+    data: campoDataAgenda.value,
+    status: campoStatusAgenda?.value || "Todos",
+    busca: campoBusca?.value || "",
+  };
+
+  salvarJSON("filtros", filtros);
+
   renderizarAgendamentos(
     estado.agenda,
-    campoDataAgenda.value,
-    campoStatusAgenda?.value || "Todos",
-    campoBusca?.value || "",
+    filtros.data,
+    filtros.status,
+    filtros.busca,
   );
 
   atualizarFechamento();

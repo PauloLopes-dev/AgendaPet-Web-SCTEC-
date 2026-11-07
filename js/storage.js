@@ -24,14 +24,18 @@ export function limparDados() {
     const chaves = Object.keys(localStorage);
 
     chaves.forEach((chave) => {
-      if (chave.startsWith(PREFIXO)) {
+      if (
+        chave.startsWith(PREFIXO) &&
+        chave !== `${PREFIXO}tema` &&
+        chave !== `${PREFIXO}feriados-${new Date().getFullYear()}`
+      ) {
         localStorage.removeItem(chave);
       }
     });
+
+    return true;
   } catch (erro) {
     console.error("Não foi possível limpar os dados:", erro);
     return false;
   }
-
-  return true;
 }

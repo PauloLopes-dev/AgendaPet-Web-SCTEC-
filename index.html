@@ -427,12 +427,55 @@
               <button class="botao botao--secundario" type="button">
                 Carregar dados de exemplo
               </button>
-              <button class="botao botao--secundario" type="button">
+
+              <button
+                class="botao botao--secundario"
+                type="button"
+                data-exportar
+              >
                 Exportar agenda (JSON)
               </button>
-              <button class="botao botao--perigo" type="button">
+
+              <button
+                class="botao botao--perigo"
+                type="button"
+                data-limpar-dados
+              >
                 Limpar meus dados
               </button>
+            </div>
+
+            <div class="area-exportacao" data-area-exportacao hidden>
+              <div class="campo">
+                <label class="campo__rotulo" for="json-exportado">
+                  Agenda em formato JSON
+                </label>
+                <textarea
+                  class="campo__entrada"
+                  id="json-exportado"
+                  rows="12"
+                  readonly
+                  spellcheck="false"
+                ></textarea>
+              </div>
+
+              <div class="acoes">
+                <button
+                  class="botao botao--secundario"
+                  type="button"
+                  data-copiar-json
+                >
+                  Copiar JSON
+                </button>
+
+                <button
+                  class="botao botao--secundario"
+                  type="button"
+                  data-baixar-json
+                >
+                  Baixar arquivo JSON
+                </button>
+              </div>
             </div>
           </section>
 
@@ -475,22 +518,6 @@
 
       atualizarRelogio();
       setInterval(atualizarRelogio, 1000);
-
-      // Alternância do tema escuro
-      const botaoTema = document.querySelector("[data-tema]");
-
-      botaoTema.addEventListener("click", () => {
-        const escuro =
-          document.documentElement.getAttribute("data-tema") === "escuro";
-
-        if (escuro) {
-          document.documentElement.removeAttribute("data-tema");
-          botaoTema.textContent = "Tema escuro";
-        } else {
-          document.documentElement.setAttribute("data-tema", "escuro");
-          botaoTema.textContent = "Tema claro";
-        }
-      });
 
       // Atalhos de teclado
       document.addEventListener("keydown", (evento) => {
