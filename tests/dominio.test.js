@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 
 import {
   Agendamento,
@@ -6,30 +7,27 @@ import {
   criarGeradorProtocolo,
 } from "../js/dominio/agendamento.js";
 
-import { verificarConflito } from "../js/dominio/regras.js";
-import { fecharDia } from "../js/dominio/fechamento.js";
 import {
   verificarConflito,
   filtrarAgendamentos,
 } from "../js/dominio/regras.js";
 
+import { fecharDia } from "../js/dominio/fechamento.js";
+
 describe("Domínio — Agendamento", () => {
   it("calcula o valor de um atendimento normal", () => {
     const agendamento = new Agendamento({ preco: 80 });
-
-    expect(agendamento.calcularValor()).toBe(80);
+    assert.equal(agendamento.calcularValor(), 80);
   });
 
   it("considera ativo um agendamento não cancelado", () => {
     const agendamento = new Agendamento({ status: "Agendado" });
-
-    expect(agendamento.ativo).toBe(true);
+    assert.equal(agendamento.ativo, true);
   });
 
   it("considera inativo um agendamento cancelado", () => {
     const agendamento = new Agendamento({ status: "Cancelado" });
-
-    expect(agendamento.ativo).toBe(false);
+    assert.equal(agendamento.ativo, false);
   });
 
   it("não cobra deslocamento em Joinville", () => {
@@ -37,8 +35,7 @@ describe("Domínio — Agendamento", () => {
       preco: 80,
       cidade: "JOINVILLE",
     });
-
-    expect(agendamento.calcularValor()).toBe(80);
+    assert.equal(agendamento.calcularValor(), 80);
   });
 
   it("cobra R$ 20 de deslocamento em outra cidade", () => {
@@ -46,15 +43,13 @@ describe("Domínio — Agendamento", () => {
       preco: 80,
       cidade: "São Bento do Sul",
     });
-
-    expect(agendamento.calcularValor()).toBe(100);
+    assert.equal(agendamento.calcularValor(), 100);
   });
 
   it("gera protocolos sequenciais", () => {
     const gerar = criarGeradorProtocolo(3);
-
-    expect(gerar()).toBe("AP-0004");
-    expect(gerar()).toBe("AP-0005");
+    assert.equal(gerar(), "AP-0004");
+    assert.equal(gerar(), "AP-0005");
   });
 
   it("identifica conflito no mesmo dia e horário", () => {
@@ -62,13 +57,11 @@ describe("Domínio — Agendamento", () => {
       data: "2026-11-04",
       hora: "09:00",
     });
-
     const novo = new Agendamento({
       data: "2026-11-04",
       hora: "09:00",
     });
-
-    expect(verificarConflito([existente], novo)).toBe(true);
+    assert.equal(verificarConflito([existente], novo), true);
   });
 
   it("permite o mesmo horário quando o anterior está cancelado", () => {
@@ -77,13 +70,11 @@ describe("Domínio — Agendamento", () => {
       hora: "09:00",
       status: "Cancelado",
     });
-
     const novo = new Agendamento({
       data: "2026-11-04",
       hora: "09:00",
     });
-
-    expect(verificarConflito([existente], novo)).toBe(false);
+    assert.equal(verificarConflito([existente], novo), false);
   });
 
   it("não identifica conflito em horários diferentes", () => {
@@ -91,13 +82,11 @@ describe("Domínio — Agendamento", () => {
       data: "2026-11-04",
       hora: "09:00",
     });
-
     const novo = new Agendamento({
       data: "2026-11-04",
       hora: "10:00",
     });
-
-    expect(verificarConflito([existente], novo)).toBe(false);
+    assert.equal(verificarConflito([existente], novo), false);
   });
 
   it("calcula o fechamento diário corretamente", () => {
@@ -134,24 +123,24 @@ describe("Domínio — Agendamento", () => {
 
     const fechamento = fecharDia(agenda, "2026-11-04");
 
-    expect(fechamento.totalAtendimentos).toBe(3);
-    expect(fechamento.faturamento).toBe(80);
-    expect(fechamento.cancelados).toBe(1);
-    expect(fechamento.quantidadePorServico).toEqual({
+    assert.equal(fechamento.totalAtendimentos, 3);
+    assert.equal(fechamento.faturamento, 80);
+    assert.equal(fechamento.cancelados, 1);
+    assert.deepEqual(fechamento.quantidadePorServico, {
       Banho: 2,
       Tosa: 1,
     });
-    expect(fechamento.proximoAtendimento.hora).toBe("10:00");
+    assert.equal(fechamento.proximoAtendimento.hora, "10:00");
   });
 
   it("retorna valores zerados quando não existem atendimentos na data", () => {
     const fechamento = fecharDia([], "2026-11-04");
 
-    expect(fechamento.totalAtendimentos).toBe(0);
-    expect(fechamento.faturamento).toBe(0);
-    expect(fechamento.cancelados).toBe(0);
-    expect(fechamento.quantidadePorServico).toEqual({});
-    expect(fechamento.proximoAtendimento).toBeNull();
+    assert.equal(fechamento.totalAtendimentos, 0);
+    assert.equal(fechamento.faturamento, 0);
+    assert.equal(fechamento.cancelados, 0);
+    assert.deepEqual(fechamento.quantidadePorServico, {});
+    assert.equal(fechamento.proximoAtendimento, null);
   });
 
   it("filtra agendamentos usando um callback", () => {
@@ -166,9 +155,9 @@ describe("Domínio — Agendamento", () => {
       (agendamento) => agendamento.status === "Concluído",
     );
 
-    expect(concluidos).toHaveLength(2);
-    expect(concluidos[0].tutor).toBe("Ana");
-    expect(concluidos[1].tutor).toBe("Maria");
+    assert.equal(concluidos.length, 2);
+    assert.equal(concluidos[0].tutor, "Ana");
+    assert.equal(concluidos[1].tutor, "Maria");
   });
 
   it("retorna lista vazia quando nenhum agendamento atende ao critério", () => {
@@ -182,7 +171,7 @@ describe("Domínio — Agendamento", () => {
       (agendamento) => agendamento.status === "Concluído",
     );
 
-    expect(concluidos).toEqual([]);
+    assert.deepEqual(concluidos, []);
   });
 
   it("gera resumo de um agendamento normal", () => {
@@ -193,7 +182,7 @@ describe("Domínio — Agendamento", () => {
       preco: 80,
     });
 
-    expect(agendamento.resumo()).toBe("AP-0001 - Rex - Banho - R$ 80.00");
+    assert.equal(agendamento.resumo(), "AP-0001 - Rex - Banho - R$ 80.00");
   });
 
   it("gera resumo identificando atendimento domiciliar", () => {
@@ -205,8 +194,27 @@ describe("Domínio — Agendamento", () => {
       cidade: "Joinville",
     });
 
-    expect(agendamento.resumo()).toBe(
+    assert.equal(
+      agendamento.resumo(),
       "AP-0002 - Luna - Tosa - R$ 80.00 - Atendimento domiciliar",
     );
+  });
+
+  it("inclui a taxa de deslocamento no fechamento domiciliar fora de Joinville", () => {
+    const agenda = [
+      {
+        data: "2026-11-04",
+        hora: "09:00",
+        status: "Concluído",
+        preco: 60,
+        servicoNome: "Banho",
+        domiciliar: true,
+        cidade: "Itapema",
+      },
+    ];
+
+    const fechamento = fecharDia(agenda, "2026-11-04");
+
+    assert.equal(fechamento.faturamento, 80);
   });
 });

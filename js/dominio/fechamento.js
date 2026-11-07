@@ -1,3 +1,5 @@
+import { Agendamento, AgendamentoDomiciliar } from "./agendamento.js";
+
 export function fecharDia(agenda, data) {
   // Seleciona os atendimentos da data informada.
   const atendimentos = agenda.filter(
@@ -10,10 +12,13 @@ export function fecharDia(agenda, data) {
   );
 
   // Calcula o faturamento dos atendimentos concluídos.
-  const faturamento = concluidos.reduce(
-    (total, agendamento) => total + Number(agendamento.preco || 0),
-    0,
-  );
+  const faturamento = concluidos.reduce((total, agendamento) => {
+    const instancia = agendamento.domiciliar
+      ? new AgendamentoDomiciliar(agendamento)
+      : new Agendamento(agendamento);
+
+    return total + instancia.calcularValor();
+  }, 0);
 
   // Conta quantos atendimentos existem para cada serviço.
   const quantidadePorServico = atendimentos.reduce((resultado, agendamento) => {

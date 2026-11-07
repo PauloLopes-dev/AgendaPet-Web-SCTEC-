@@ -1,22 +1,12 @@
 {
-  "name": "agendapet-web-sctec-",
+  "name": "agendapet-web-sctec",
   "version": "1.0.0",
-  "description": "<<<<<<< Updated upstream\r # AgendaPet-Web-SCTEC-",
-  "main": "index.js",
+  "description": "Sistema web de gerenciamento de agendamentos da Patinhas & Cia",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "index.js"
+    "test": "node --test",
+    "start": "npx http-server . -p 5502"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-.git"
-  },
-  "keywords": [],
   "type": "module",
-  "bugs": {
-    "url": "https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-/issues"
-  },
-  "homepage": "https://github.com/PauloLopes-dev/AgendaPet-Web-SCTEC-#readme",
   "devDependencies": {
     "http-server": "^14.1.1"
   }
