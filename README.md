@@ -228,8 +228,8 @@ O teste confirmou o funcionamento esperado do validador, que reprovou a agenda c
 | Indicador                   | Resultado       |
 | --------------------------- | --------------- |
 | Histórias planejadas        | 12              |
-| Histórias integradas        | 12              |
-| Histórias em andamento      | nenhuma         |
+| Histórias integradas        | 10              |
+| Histórias em andamento      | US12            |
 | Pontos planejados           | Não recuperados |
 | Pontos entregues            | Não registrados |
 | Pull Requests de integração | 7               |
@@ -247,12 +247,6 @@ O teste confirmou o funcionamento esperado do validador, que reprovou a agenda c
 - **O que manter:** desenvolvimento incremental, commits por etapa e integração por Pull Requests.
 - **O que parar de fazer:** deixar documentação e evidências para o final.
 - **O que começar a fazer:** registrar estimativas, resultados dos testes e evidências durante cada história.
-
-### Retrospectiva
-
-- **O que manter:** [ ]
-- **O que parar de fazer:** [ ]
-- **O que começar a fazer:** [ ]
 
 ## 11. Extensões do VS Code
 
@@ -304,8 +298,7 @@ AgendaPet-Web-SCTEC/
 ├── planejamento/
 ├── scripts/
 │   ├── fechamento.js
-│   ├── validar-agenda.cjs
-│
+│   └── validar-agenda.cjs
 ├── tests/
 │   └── dominio.test.js
 ├── .gitignore
@@ -316,8 +309,6 @@ AgendaPet-Web-SCTEC/
 ```
 
 A pasta `node_modules/` foi omitida por conter dependências instaladas localmente. Ela não deve ser enviada ao repositório.
-
-## 13. Uso de IA
 
 ## 13. Uso de IA
 
