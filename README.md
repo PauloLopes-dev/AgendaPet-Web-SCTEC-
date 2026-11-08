@@ -213,7 +213,15 @@ As cores, os espaçamentos e a tipografia são organizados por variáveis CSS de
 
 ## 9. Depuração
 
-[Resumo do bug e link para [docs/bug-report.md](docs/bug-report.md). Inclua o print `docs/depuracao.png`.]
+A depuração foi realizada no VS Code utilizando a configuração `.vscode/launch.json`, com breakpoint e inspeção de variáveis, Watch e Call Stack.
+
+Foi utilizado o arquivo `data/agenda-invalida.json` para testar o validador de agendamentos. A execução identificou seis problemas, incluindo datas e horários inválidos, campos obrigatórios ausentes, serviço inexistente e conflito de horário entre dois agendamentos.
+
+O teste confirmou o funcionamento esperado do validador, que reprovou a agenda com inconsistências.
+
+- **Relatório:** [docs/bug-report.md](docs/bug-report.md)
+- **Evidência:** [docs/depuracao.png](docs/depuracao.png)
+- **Modelo de relatório:** [Modelos e Apoio/bug-report_MODELO.md](Modelos%20e%20Apoio/bug-report_MODELO.md)
 
 ## 10. Sprint: planejado × entregue
 
@@ -221,7 +229,7 @@ As cores, os espaçamentos e a tipografia são organizados por variáveis CSS de
 | --------------------------- | --------------- |
 | Histórias planejadas        | 12              |
 | Histórias integradas        | 10              |
-| Histórias em andamento      | US11 e US12     |
+| Histórias em andamento      | US12            |
 | Pontos planejados           | Não recuperados |
 | Pontos entregues            | Não registrados |
 | Pull Requests de integração | 7               |
@@ -239,12 +247,6 @@ As cores, os espaçamentos e a tipografia são organizados por variáveis CSS de
 - **O que manter:** desenvolvimento incremental, commits por etapa e integração por Pull Requests.
 - **O que parar de fazer:** deixar documentação e evidências para o final.
 - **O que começar a fazer:** registrar estimativas, resultados dos testes e evidências durante cada história.
-
-### Retrospectiva
-
-- **O que manter:** [ ]
-- **O que parar de fazer:** [ ]
-- **O que começar a fazer:** [ ]
 
 ## 11. Extensões do VS Code
 
@@ -296,8 +298,7 @@ AgendaPet-Web-SCTEC/
 ├── planejamento/
 ├── scripts/
 │   ├── fechamento.js
-│   ├── validar-agenda.cjs
-│
+│   └── validar-agenda.cjs
 ├── tests/
 │   └── dominio.test.js
 ├── .gitignore
@@ -308,8 +309,6 @@ AgendaPet-Web-SCTEC/
 ```
 
 A pasta `node_modules/` foi omitida por conter dependências instaladas localmente. Ela não deve ser enviada ao repositório.
-
-## 13. Uso de IA
 
 ## 13. Uso de IA
 
