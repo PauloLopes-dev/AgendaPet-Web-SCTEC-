@@ -4,7 +4,9 @@
   "description": "Sistema web de gerenciamento de agendamentos da Patinhas & Cia",
   "scripts": {
     "test": "node --test",
-    "start": "npx http-server . -p 5502"
+    "start": "npx http-server . -p 5502",
+    "fechamento": "node scripts/fechamento.js",
+    "validar": "node scripts/validar-agenda.cjs"
   },
   "type": "module",
   "devDependencies": {
