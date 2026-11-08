@@ -213,15 +213,23 @@ As cores, os espaçamentos e a tipografia são organizados por variáveis CSS de
 
 ## 9. Depuração
 
-[Resumo do bug e link para [docs/bug-report.md](docs/bug-report.md). Inclua o print `docs/depuracao.png`.]
+A depuração foi realizada no VS Code utilizando a configuração `.vscode/launch.json`, com breakpoint e inspeção de variáveis, Watch e Call Stack.
+
+Foi utilizado o arquivo `data/agenda-invalida.json` para testar o validador de agendamentos. A execução identificou seis problemas, incluindo datas e horários inválidos, campos obrigatórios ausentes, serviço inexistente e conflito de horário entre dois agendamentos.
+
+O teste confirmou o funcionamento esperado do validador, que reprovou a agenda com inconsistências.
+
+- **Relatório:** [docs/bug-report.md](docs/bug-report.md)
+- **Evidência:** [docs/depuracao.png](docs/depuracao.png)
+- **Modelo de relatório:** [Modelos e Apoio/bug-report_MODELO.md](Modelos%20e%20Apoio/bug-report_MODELO.md)
 
 ## 10. Sprint: planejado × entregue
 
 | Indicador                   | Resultado       |
 | --------------------------- | --------------- |
 | Histórias planejadas        | 12              |
-| Histórias integradas        | 10              |
-| Histórias em andamento      | US11 e US12     |
+| Histórias integradas        | 12              |
+| Histórias em andamento      | nenhuma         |
 | Pontos planejados           | Não recuperados |
 | Pontos entregues            | Não registrados |
 | Pull Requests de integração | 7               |
